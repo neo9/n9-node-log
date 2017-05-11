@@ -91,6 +91,7 @@ Will output the logs into `process.stdout` and `process.stderr`.
 - Default: `true`
 
 Example:
+
 ```ts
 const log = N9Log('my-app-name', {
 	console: false, // Don't output the logs into the console
@@ -110,6 +111,7 @@ Will write the log output into specified file(s).
 	- `maxFiles`: Limit the number of files created
 
 Example:
+
 ```ts
 const log = N9Log('my-app-name', {
 	files: [
@@ -133,6 +135,7 @@ const log = N9Log('my-app-name', {
 	- `ssl`: (Default: `false`) Value indicating if we should us HTTPS
 
 Example:
+
 ```ts
 const log = N9Log('my-app-name', {
 	http: [
