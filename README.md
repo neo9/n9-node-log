@@ -23,9 +23,9 @@ log.error('An error appened')
 ```
 
 ```bash
-info: [my-app-name] This is an information message
-warn: [my-app-name] Warning, this feature will be removed soon
-error: [my-app-name] An error appened
+2017-05-12T15:57:14.474Z - info: [my-app-name] This is an information message
+2017-05-12T15:57:14.689Z - warn: [my-app-name] Warning, this feature will be removed soon
+2017-05-12T15:57:14.974Z - error: [my-app-name] An error appened
 ```
 
 ## Metadata
@@ -36,8 +36,8 @@ log.error('Here an error', new Error('hello'))
 ```
 
 ```bash
-info: [my-app-name] Log with metadata anything=this is metadata
-error: [node-ts-skeleton] Here an error Error: hello
+2017-05-12T15:57:14.474Z - info: [my-app-name] Log with metadata anything=this is metadata
+2017-05-12T15:57:14.785Z - error: [node-ts-skeleton] Here an error Error: hello
     at Object.<anonymous> (/home/schopin/Neo9/node-ts-skeleton/src/index.ts:16:28)
     at Module._compile (module.js:571:32)
     at ...
@@ -52,7 +52,7 @@ logUsers.info('Log specific to users module')
 ```
 
 ```bash
-info: [my-app-name:users] Log specific to users module
+2017-05-12T15:57:14.474Z - info: [my-app-name:users] Log specific to users module
 ```
 
 ## Profiling
@@ -63,7 +63,7 @@ setTimeout(() => log.profile('test'), 1000)
 ```
 
 ```bash
-info: [my-app-name] test durationMs=1000
+2017-05-12T15:57:14.474Z - info: [my-app-name] test durationMs=1000
 ```
 
 ## Log level
