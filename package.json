@@ -1,6 +1,6 @@
 {
   "name": "n9-node-log",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Logging module based on Winston for Neo9.",
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
