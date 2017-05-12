@@ -23,6 +23,16 @@ test('Simple use case', (t) => {
 	t.true(output.stderr[0].includes('[test] Error message'))
 })
 
+test('Profiling', (t) => {
+	const log = new N9Log('test')
+	stdMock.use()
+	log.profile('foo')
+	log.profile('foo')
+	stdMock.restore()
+	const output = stdMock.flush()
+	t.true(output.stdout[0].includes('[test] foo durationMs='))
+})
+
 test('Simple use case with modules', (t) => {
 	const log = new N9Log('test').module('ava')
 	stdMock.use()

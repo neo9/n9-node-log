@@ -12,6 +12,7 @@
       "no-var-requires": false,
       "curly": false,
       "ordered-imports": [false],
-      "object-literal-sort-keys": false
+      "object-literal-sort-keys": false,
+			"max-line-length": [ false ]
     }
 }

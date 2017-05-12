@@ -24,12 +24,14 @@ export interface N9LogHttpOptions {
 	ssl?: boolean
 }
 
+export type ProfileMethod = (id: string, msg?: string, meta?: any, callback?: (err: Error, level: string, msg: string, meta: any) => void) => winston.LoggerInstance
+
 class N9Log {
 
 	public info: winston.LeveledLogMethod
 	public warn: winston.LeveledLogMethod
 	public error: winston.LeveledLogMethod
-	public profile: winston.LoggerInstance
+	public profile: ProfileMethod
 
 	private name: string
 	private level: 'error' | 'warn' | 'info'
