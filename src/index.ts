@@ -85,7 +85,8 @@ class N9Log {
 				new winston.transports.Console({
 					colorize: true,
 					level: this.level,
-					label: this.name
+					label: this.name,
+					timestamp: true
 				})
 			)
 		}
