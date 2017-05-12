@@ -50,7 +50,6 @@ test('Simple use case with modules', (t) => {
 	t.true(output.stderr[0].includes('[test:ava] Error message'))
 })
 
-
 test('With no transport', (t) => {
 	const log = new N9Log('test', { console: false })
 	stdMock.use()
