@@ -101,7 +101,7 @@ class N9Log {
 			transports.push(
 				new winston.transports.Http({
 					name: `http-transport-${index}`,
-					httpOptions
+					...httpOptions
 				})
 			)
 		})
