@@ -20,11 +20,10 @@
   },
   "author": "Sebastien Chopin <sebastien.chopin@neo9.fr>",
   "dependencies": {
-    "@types/fs-extra": "^3.0.0",
-    "tmp-promise": "^1.0.3",
     "winston": "^2.3.1"
   },
   "devDependencies": {
+    "@types/fs-extra": "^3.0.0",
     "@types/nock": "^8.2.1",
     "@types/node": "^7.0.18",
     "@types/winston": "^2.3.2",
@@ -34,6 +33,7 @@
     "nyc": "^10.3.2",
     "rimraf": "^2.6.1",
     "std-mocks": "^1.0.1",
+    "tmp-promise": "^1.0.3",
     "tslint": "^5.2.0",
     "typescript": "^2.3.2"
   }
