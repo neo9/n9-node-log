@@ -94,7 +94,7 @@ Example:
 
 ```ts
 const log = N9Log('my-app-name', {
-	console: false, // Don't output the logs into the console
+  console: false, // Don't output the logs into the console
 })
 ```
 
@@ -114,12 +114,12 @@ Example:
 
 ```ts
 const log = N9Log('my-app-name', {
-	files: [
-		{
-			level: 'info',
-			filename: '/tmp/info-log.log'
-		}
-	]
+  files: [
+    {
+      level: 'info',
+      filename: '/tmp/info-log.log'
+    }
+  ]
 })
 ```
 
@@ -138,12 +138,12 @@ Example:
 
 ```ts
 const log = N9Log('my-app-name', {
-	http: [
-		{
-			host: 'my-logs.io',
-			path: '/save',
-			ssl: true
-		}
-	]
+  http: [
+    {
+      host: 'my-logs.io',
+      path: '/save',
+      ssl: true
+    }
+  ]
 })
 ```
