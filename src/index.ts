@@ -1,44 +1,45 @@
 import * as winston from 'winston'
 
-export interface N9LogOptions {
-	console?: boolean
-	files?: N9LogFilesOptions[]
-	http?: N9LogHttpOptions[]
-}
-
-export interface N9LogFilesOptions {
-	level?: 'error' | 'warn' | 'info'
-	filename: string
-	maxsize?: number
-	maxFiles?: number
-}
-
-export interface N9LogHttpOptions {
-	host?: string
-	port?: number
-	path?: string
-	auth?: {
-		username: string
-		password: string
+namespace N9Log {
+	export interface Options {
+		console?: boolean
+		files?: FilesOptions[]
+		http?: HttpOptions[]
 	}
-	ssl?: boolean
-}
 
-export type ProfileMethod = (id: string, msg?: string, meta?: any, callback?: (err: Error, level: string, msg: string, meta: any) => void) => winston.LoggerInstance
+	export interface FilesOptions {
+		level?: 'error' | 'warn' | 'info'
+		filename: string
+		maxsize?: number
+		maxFiles?: number
+	}
+
+	export interface HttpOptions {
+		host?: string
+		port?: number
+		path?: string
+		auth?: {
+			username: string
+			password: string
+		}
+		ssl?: boolean
+	}
+	export type ProfileMethod = (id: string, msg?: string, meta?: any, callback?: (err: Error, level: string, msg: string, meta: any) => void) => winston.LoggerInstance
+}
 
 class N9Log {
 
 	public info: winston.LeveledLogMethod
 	public warn: winston.LeveledLogMethod
 	public error: winston.LeveledLogMethod
-	public profile: ProfileMethod
+	public profile: N9Log.ProfileMethod
 
 	private name: string
 	private level: 'error' | 'warn' | 'info'
-	private options: N9LogOptions
+	private options: N9Log.Options
 	private log: winston.LoggerInstance
 
-	constructor(name: string, options?: N9LogOptions) {
+	constructor(name: string, options?: N9Log.Options) {
 		// Options
 		this.name = name
 		this.level = process.env.N9LOG || 'info'
