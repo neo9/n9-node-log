@@ -71,6 +71,7 @@ setTimeout(() => log.profile('test'), 1000)
 You can filter the list of logs on startup with the `N9LOG` environement.
 
 Possible values:
+
 - `info`: Display all logs (info + warn + error)
 - `warn`: Display info + warn logs
 - `error`: Display only error logs
