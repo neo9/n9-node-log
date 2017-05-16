@@ -13,7 +13,7 @@ npm install --save n9-node-log
 ```ts
 import N9Log from 'n9-node-log'
 
-const log = N9Log('my-app-name')
+const log = new N9Log('my-app-name')
 
 // Write on stdout
 log.info('This is an information message')
@@ -94,7 +94,7 @@ Will output the logs into `process.stdout` and `process.stderr`.
 Example:
 
 ```ts
-const log = N9Log('my-app-name', {
+const log = new N9Log('my-app-name', {
   console: false, // Don't output the logs into the console
 })
 ```
@@ -114,7 +114,7 @@ Will write the log output into specified file(s).
 Example:
 
 ```ts
-const log = N9Log('my-app-name', {
+const log = new N9Log('my-app-name', {
   files: [
     {
       level: 'info',
@@ -138,7 +138,7 @@ const log = N9Log('my-app-name', {
 Example:
 
 ```ts
-const log = N9Log('my-app-name', {
+const log = new N9Log('my-app-name', {
   http: [
     {
       host: 'my-logs.io',
