@@ -1,6 +1,6 @@
 import * as winston from 'winston'
 
-namespace N9Log {
+export namespace N9Log {
 	export interface Options {
 		console?: boolean
 		files?: FilesOptions[]
@@ -27,7 +27,7 @@ namespace N9Log {
 	export type ProfileMethod = (id: string, msg?: string, meta?: any, callback?: (err: Error, level: string, msg: string, meta: any) => void) => winston.LoggerInstance
 }
 
-class N9Log {
+export class N9Log {
 
 	public info: winston.LeveledLogMethod
 	public warn: winston.LeveledLogMethod
@@ -114,4 +114,6 @@ class N9Log {
 
 }
 
-export default N9Log
+export default function(name: string, options?: N9Log.Options): N9Log {
+	return new N9Log(name, options)
+}

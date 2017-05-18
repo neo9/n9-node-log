@@ -4,10 +4,10 @@ import * as tmp from 'tmp-promise'
 import * as nock from 'nock'
 import { readFile } from 'fs-extra'
 
-import N9Log from '../src'
+import n9Log from '../src'
 
 test('Simple use case', (t) => {
-	const log = new N9Log('test')
+	const log = n9Log('test')
 	stdMock.use()
 	log.info('Info message')
 	log.warn('Warning message')
@@ -24,7 +24,7 @@ test('Simple use case', (t) => {
 })
 
 test('Profiling', (t) => {
-	const log = new N9Log('test')
+	const log = n9Log('test')
 	stdMock.use()
 	log.profile('foo')
 	log.profile('foo')
@@ -34,7 +34,7 @@ test('Profiling', (t) => {
 })
 
 test('Simple use case with modules', (t) => {
-	const log = new N9Log('test').module('ava')
+	const log = n9Log('test').module('ava')
 	stdMock.use()
 	log.info('Info message')
 	log.warn('Warning message')
@@ -51,7 +51,7 @@ test('Simple use case with modules', (t) => {
 })
 
 test('With no transport', (t) => {
-	const log = new N9Log('test', { console: false })
+	const log = n9Log('test', { console: false })
 	stdMock.use()
 	log.info('Info message')
 	log.warn('Warning message')
@@ -65,7 +65,7 @@ test('With no transport', (t) => {
 
 test('File transport', async (t) => {
 	const file = await tmp.file()
-	const log = new N9Log('test', {
+	const log = n9Log('test', {
 		console: false,
 		files: [{
 			filename: file.path
@@ -97,7 +97,7 @@ test('File transport', async (t) => {
 test('Http transport', async (t) => {
 	const URL = 'http://localhost:1234'
 	const PATH = '/log'
-	const log = new N9Log('test', {
+	const log = n9Log('test', {
 		console: false,
 		http: [{
 			port: 1234,
