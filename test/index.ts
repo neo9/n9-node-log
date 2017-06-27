@@ -9,6 +9,8 @@ import n9Log from '../src'
 test('Simple use case', (t) => {
 	const log = n9Log('test')
 	stdMock.use()
+	log.trace('Trace message')
+	log.debug('Debug message')
 	log.info('Info message')
 	log.warn('Warning message')
 	log.error('Error message')
@@ -36,6 +38,8 @@ test('Profiling', (t) => {
 test('Simple use case with modules', (t) => {
 	const log = n9Log('test').module('ava')
 	stdMock.use()
+	log.trace('Trace message')
+	log.debug('Debug message')
 	log.info('Info message')
 	log.warn('Warning message')
 	log.error('Error message')
@@ -53,6 +57,8 @@ test('Simple use case with modules', (t) => {
 test('With no transport', (t) => {
 	const log = n9Log('test', { console: false })
 	stdMock.use()
+	log.trace('Trace message')
+	log.debug('Debug message')
 	log.info('Info message')
 	log.warn('Warning message')
 	log.error('Error message')
@@ -71,12 +77,24 @@ test('File transport', async (t) => {
 			filename: file.path
 		}]
 	})
+	log.trace('Trace message')
+	log.debug('Debug message')
 	log.info('Info message')
 	log.warn('Warning message')
 	log.error('Error message')
 	const output = await readFile(file.path, 'utf-8')
 	const lines = output.split('\n')
 	t.is(lines.length, 4) // count last empty line
+	// Check info log
+	const traceLog = JSON.parse(lines[0])
+	t.is(traceLog.level, 'trace')
+	t.is(traceLog.message, 'Trace message')
+	t.true(!!traceLog.timestamp)
+	// Check info log
+	const debugLog = JSON.parse(lines[0])
+	t.is(debugLog.level, 'debug')
+	t.is(debugLog.message, 'Debug message')
+	t.true(!!debugLog.timestamp)
 	// Check info log
 	const infoLog = JSON.parse(lines[0])
 	t.is(infoLog.level, 'info')

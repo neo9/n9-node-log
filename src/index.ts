@@ -8,7 +8,7 @@ export namespace N9Log {
 	}
 
 	export interface FilesOptions {
-		level?: 'error' | 'warn' | 'info'
+		level?: 'error' | 'warn' | 'info' | 'trace' | 'debug'
 		filename: string
 		maxsize?: number
 		maxFiles?: number
@@ -29,13 +29,15 @@ export namespace N9Log {
 
 export class N9Log {
 
+	public trace: winston.LeveledLogMethod
+	public debug: winston.LeveledLogMethod
 	public info: winston.LeveledLogMethod
 	public warn: winston.LeveledLogMethod
 	public error: winston.LeveledLogMethod
 	public profile: N9Log.ProfileMethod
 
 	private name: string
-	private level: 'error' | 'warn' | 'info'
+	private level: 'error' | 'warn' | 'info' | 'trace' | 'debug'
 	private options: N9Log.Options
 	private log: winston.LoggerInstance
 
@@ -68,9 +70,13 @@ export class N9Log {
 			levels: {
 				error: 0,
 				warn: 1,
-				info: 2
+				info: 2,
+				debug: 3,
+				trace: 4
 			},
 			colors: {
+				trace: 'blue',
+				debug: 'green',
 				info: 'cyan',
 				warn: 'yellow',
 				error: 'red'
