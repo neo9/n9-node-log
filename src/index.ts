@@ -2,13 +2,14 @@ import * as winston from 'winston'
 
 export namespace N9Log {
 	export interface Options {
+		level?: string
 		console?: boolean
 		files?: FilesOptions[]
 		http?: HttpOptions[]
 	}
 
 	export interface FilesOptions {
-		level?: 'error' | 'warn' | 'info' | 'trace' | 'debug'
+		level?: 'error' | 'warn' | 'info' | 'debug' | 'verbose'
 		filename: string
 		maxsize?: number
 		maxFiles?: number
@@ -29,32 +30,35 @@ export namespace N9Log {
 
 export class N9Log {
 
-	public trace: winston.LeveledLogMethod
-	public debug: winston.LeveledLogMethod
-	public info: winston.LeveledLogMethod
-	public warn: winston.LeveledLogMethod
 	public error: winston.LeveledLogMethod
+	public warn: winston.LeveledLogMethod
+	public info: winston.LeveledLogMethod
+	public debug: winston.LeveledLogMethod
+	public verbose: winston.LeveledLogMethod
 	public profile: N9Log.ProfileMethod
 
 	private name: string
-	private level: 'error' | 'warn' | 'info' | 'trace' | 'debug'
+	private level: 'error' | 'warn' | 'info' | 'debug' | 'verbose'
 	private options: N9Log.Options
 	private log: winston.LoggerInstance
 
 	constructor(name: string, options?: N9Log.Options) {
+		this.options = options || {}
 		// Options
 		this.name = name
-		this.level = process.env.N9LOG || 'info'
-		this.options = options || {}
+		// tslint:disable-next-line:no-console
+		this.level = process.env.N9LOG || this.options.level || 'info'
 		this.options.console = (typeof this.options.console === 'boolean' ? this.options.console : true)
 		this.options.files = this.options.files || []
 		this.options.http = this.options.http || []
 		// Logger
 		this.log = this.createLogger(this.level)
 		// Add methods
-		this.info = this.log.info.bind(this.log)
-		this.warn = this.log.warn.bind(this.log)
 		this.error = this.log.error.bind(this.log)
+		this.warn = this.log.warn.bind(this.log)
+		this.info = this.log.info.bind(this.log)
+		this.debug = this.log.debug.bind(this.log)
+		this.verbose = this.log.verbose.bind(this.log)
 		this.profile = this.log.profile.bind(this.log)
 	}
 
@@ -72,14 +76,14 @@ export class N9Log {
 				warn: 1,
 				info: 2,
 				debug: 3,
-				trace: 4
+				verbose: 4
 			},
 			colors: {
-				trace: 'blue',
-				debug: 'green',
-				info: 'cyan',
+				error: 'red',
 				warn: 'yellow',
-				error: 'red'
+				info: 'cyan',
+				debug: 'green',
+				verbose: 'blue'
 			}
 		})
 	}
@@ -93,7 +97,8 @@ export class N9Log {
 					colorize: true,
 					level: this.level,
 					label: this.name,
-					timestamp: true
+					timestamp: true,
+					stderrLevels: ['error']
 				})
 			)
 		}
@@ -102,6 +107,7 @@ export class N9Log {
 			transports.push(
 				new winston.transports.File({
 					name: `file-transport-${index}`,
+					level: this.level,
 					...fileOptions
 				})
 			)
@@ -111,6 +117,7 @@ export class N9Log {
 			transports.push(
 				new winston.transports.Http({
 					name: `http-transport-${index}`,
+					level: this.level,
 					...httpOptions
 				})
 			)
