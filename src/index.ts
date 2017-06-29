@@ -36,6 +36,7 @@ export class N9Log {
 	public debug: winston.LeveledLogMethod
 	public verbose: winston.LeveledLogMethod
 	public profile: N9Log.ProfileMethod
+	public stream: { write: (message) => winston.LoggerInstance }
 
 	private name: string
 	private level: 'error' | 'warn' | 'info' | 'debug' | 'verbose'
@@ -60,6 +61,8 @@ export class N9Log {
 		this.debug = this.log.debug.bind(this.log)
 		this.verbose = this.log.verbose.bind(this.log)
 		this.profile = this.log.profile.bind(this.log)
+		// Add stream for morgan middleware
+		this.stream = { write: (message) => this.info(message) }
 	}
 
 	public module(name: string) {

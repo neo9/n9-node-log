@@ -119,6 +119,17 @@ test('File transport', async (t) => {
 	t.true(!!errorLog.timestamp)
 })
 
+test('Stream property', async (t) => {
+	const log = n9Log('stream')
+	stdMock.use()
+	t.truthy(log.stream)
+	t.is(typeof log.stream.write, 'function')
+	log.stream.write('foo')
+	stdMock.restore()
+	const output = stdMock.flush()
+	t.true(output.stdout[0].includes('[stream] foo'))
+})
+
 test('Http transport', async (t) => {
 	const URL = 'http://localhost:1234'
 	const PATH = '/log'
