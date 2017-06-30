@@ -62,7 +62,9 @@ export class N9Log {
 		this.verbose = this.log.verbose.bind(this.log)
 		this.profile = this.log.profile.bind(this.log)
 		// Add stream for morgan middleware
-		this.stream = { write: (message) => this.info(message) }
+		this.stream = {
+			write: (message) => this.info(message.replace(/\n$/, '')) // remove \n added by morgan at the end
+		}
 	}
 
 	public module(name: string) {
@@ -127,7 +129,6 @@ export class N9Log {
 		})
 		return transports
 	}
-
 }
 
 export default function(name: string, options?: N9Log.Options): N9Log {
