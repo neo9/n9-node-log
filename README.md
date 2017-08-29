@@ -1,6 +1,9 @@
 # n9-node-log
 
-Logging module based on Winston for Neo9.
+Logging node module based on Winston.
+
+[![npm version](https://img.shields.io/npm/v/@neo9/n9-node-log.svg)](https://www.npmjs.com/package/@neo9/n9-node-log)
+[![license](https://img.shields.io/github/license/neo9/n9-node-log.svg)](https://github.com/neo9/n9-node-log/blob/master/LICENSE)
 
 ## Installation
 
