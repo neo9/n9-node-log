@@ -26,22 +26,22 @@
   },
   "author": "Sebastien Chopin <sebastien.chopin@neo9.fr>",
   "dependencies": {
-    "@types/winston": "^2.3.2",
+    "@types/winston": "^2.3.5",
     "winston": "^2.3.1"
   },
   "devDependencies": {
-    "@types/fs-extra": "^3.0.0",
+    "@types/fs-extra": "^4.0.0",
     "@types/nock": "^8.2.1",
-    "@types/node": "^7.0.18",
-    "ava": "^0.19.1",
-    "fs-extra": "^3.0.1",
-    "n9-node-sonar-generate": "^0.1.0",
-    "nock": "^9.0.13",
-    "nyc": "^10.3.2",
+    "@types/node": "^8.0.25",
+    "ava": "^0.22.0",
+    "fs-extra": "^4.0.1",
+    "@neo9/n9-node-sonar-generate": "^1.1.0",
+    "nock": "^9.0.14",
+    "nyc": "^11.1.0",
     "rimraf": "^2.6.1",
     "std-mocks": "^1.0.1",
     "tmp-promise": "^1.0.3",
-    "tslint": "^5.2.0",
-    "typescript": "^2.3.2"
+    "tslint": "^5.7.0",
+    "typescript": "^2.4.2"
   }
 }

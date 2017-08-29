@@ -39,7 +39,7 @@ export class N9Log {
 	public stream: { write: (message) => winston.LoggerInstance }
 
 	private name: string
-	private level: 'error' | 'warn' | 'info' | 'debug' | 'verbose'
+	private level: string
 	private options: N9Log.Options
 	private log: winston.LoggerInstance
 
