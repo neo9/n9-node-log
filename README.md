@@ -3,6 +3,8 @@
 Logging node module based on Winston.
 
 [![npm version](https://img.shields.io/npm/v/@neo9/n9-node-log.svg)](https://www.npmjs.com/package/@neo9/n9-node-log)
+[![Travis](https://img.shields.io/travis/neo9/n9-node-log/master.svg)](https://travis-ci.org/neo9/n9-node-log)
+[![Coverage](https://img.shields.io/codecov/c/github/neo9/n9-node-log/master.svg)](https://codecov.io/gh/neo9/n9-node-log)
 [![license](https://img.shields.io/github/license/neo9/n9-node-log.svg)](https://github.com/neo9/n9-node-log/blob/master/LICENSE)
 
 ## Installation
