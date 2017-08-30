@@ -1,7 +1,7 @@
 {
   "name": "@neo9/n9-node-log",
   "version": "2.2.2",
-  "description": "Neo9 Node Log Module",
+  "description": "Logging node module based on Winston",
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
   "files": [
@@ -38,5 +38,12 @@
     "tmp-promise": "^1.0.3",
     "tslint": "^5.7.0",
     "typescript": "^2.4.2"
-  }
+  },
+  "keywords": [
+    "node log",
+    "winston",
+    "log",
+    "logging",
+    "debug"
+  ]
 }
