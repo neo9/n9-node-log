@@ -19,6 +19,8 @@ import n9Log from 'n9-node-log'
 const log = n9Log('my-app-name')
 
 // Write on stdout
+log.verbose('This is a verbose message')
+log.debug('This is a debug message')
 log.info('This is an information message')
 log.warn('Warning, this feature will be removed soon')
 // Write on stderr
@@ -75,13 +77,15 @@ You can filter the list of logs on startup with the `N9LOG` environement.
 
 Possible values:
 
-- `info`: Display all logs (info + warn + error)
+- `verbose`: Display all logs
+- `debug`: Display debug + info + warn + error logs
+- `info`: Display info + warn + error logs
 - `warn`: Display info + warn logs
 - `error`: Display only error logs
 
-Default value: `info`
+Default value: `verbose`
 
-Example: `N9LOG=error node server.js`
+Example: `N9LOG=error node server.js` will display only error logs.
 
 ## Transports
 
