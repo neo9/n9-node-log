@@ -10,13 +10,13 @@ Logging node module based on Winston.
 ## Installation
 
 ```bash
-npm install --save n9-node-log
+npm install --save @neo9/n9-node-log
 ```
 
 ## Usage
 
 ```ts
-import n9Log from 'n9-node-log'
+import n9Log from '@neo9/n9-node-log'
 
 const log = n9Log('my-app-name')
 
