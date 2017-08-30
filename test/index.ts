@@ -89,6 +89,7 @@ test('File transport', async (t) => {
 	log.info('Info message')
 	log.warn('Warning message')
 	log.error('Error message')
+	await new Promise((resolve) => setTimeout(resolve, 1000))
 	const output = await readFile(file.path, 'utf-8')
 	const lines = output.split('\n')
 	t.is(lines.length, 6) // count last empty line
