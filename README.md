@@ -75,7 +75,7 @@ setTimeout(() => log.profile('test'), 1000)
 
 ## Log level
 
-You can filter the list of logs on startup with the `N9LOG` environement.
+You can filter the list of logs on startup with the `N9LOG` environement or with the `level` option.
 
 Possible values:
 
