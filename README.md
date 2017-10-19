@@ -115,10 +115,10 @@ Will write the log output into specified file(s).
 - Type: `Array`
 - Default: `[]`
 - Properties:
-	- `level`: Level of messages to write into the file (default: `'info'`)
-	- `filename`: Path of the logfile
-	- `maxsize`: Max sizes in bytes of the logfile
-	- `maxFiles`: Limit the number of files created
+  - `level`: Level of messages to write into the file (default: `'info'`)
+  - `filename`: Path of the logfile
+  - `maxsize`: Max sizes in bytes of the logfile
+  - `maxFiles`: Limit the number of files created
 
 Example:
 
@@ -138,11 +138,11 @@ const log = n9Log('my-app-name', {
 - Type: `Array`
 - Default: `[]`
 - Properties:
-	- `host`: (Default: `'localhost'`) Remote host of the HTTP logging endpoint
-	- `port`: (Default: `80` or `443`) Remote port of the HTTP logging endpoint
-	- `path`: (Default: `'/'`) Remote URI of the HTTP logging endpoint
-	- `auth`: (Default: None) An object representing the `username` and `password` for HTTP Basic Auth
-	- `ssl`: (Default: `false`) Value indicating if we should us HTTPS
+  - `host`: (Default: `'localhost'`) Remote host of the HTTP logging endpoint
+  - `port`: (Default: `80` or `443`) Remote port of the HTTP logging endpoint
+  - `path`: (Default: `'/'`) Remote URI of the HTTP logging endpoint
+  - `auth`: (Default: None) An object representing the `username` and `password` for HTTP Basic Auth
+  - `ssl`: (Default: `false`) Value indicating if we should us HTTPS
 
 Example:
 
@@ -154,6 +154,31 @@ const log = n9Log('my-app-name', {
       path: '/save',
       ssl: true
     }
+  ]
+})
+```
+
+### `transports`
+
+Useful for adding custom transports into `n9-node-log`:
+
+- Type: `Array`
+- Default: `[]`
+
+Example:
+
+```ts
+import * as WinstonElasticSearch from 'winston-elasticsearch'
+
+const log = n9Log('test', {
+  console: false,
+  transports: [
+    new WinstonElasticSearch({
+      index: 'n9-log',
+      level: 'info',
+      mappingTemplate: require('winston-elasticsearch/index-template-mapping.json'),
+      flushInterval: 200
+    })
   ]
 })
 ```
