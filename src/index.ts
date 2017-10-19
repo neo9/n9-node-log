@@ -5,7 +5,8 @@ export namespace N9Log {
 		level?: string
 		console?: boolean
 		files?: FilesOptions[]
-		http?: HttpOptions[]
+		http?: HttpOptions[],
+		transports?: any[]
 	}
 
 	export interface FilesOptions {
@@ -52,6 +53,7 @@ export class N9Log {
 		this.options.console = (typeof this.options.console === 'boolean' ? this.options.console : true)
 		this.options.files = this.options.files || []
 		this.options.http = this.options.http || []
+		this.options.transports = this.options.transports || []
 		// Logger
 		this.log = this.createLogger(this.level)
 		// Add methods
@@ -95,6 +97,7 @@ export class N9Log {
 
 	private getTransporters() {
 		const transports = []
+
 		// Add console transport
 		if (this.options.console) {
 			transports.push(
@@ -127,6 +130,11 @@ export class N9Log {
 				})
 			)
 		})
+		// Add custom transports
+		this.options.transports.forEach((transport) => {
+			transports.push(transport)
+		})
+
 		return transports
 	}
 }

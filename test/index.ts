@@ -6,6 +6,9 @@ import { readFile } from 'fs-extra'
 
 import n9Log from '../src'
 
+import winston from 'winston'
+import * as ElasticSearch from 'winston-elasticsearch'
+
 test('Simple use case', (t) => {
 	process.env.N9LOG = 'verbose'
 	const log = n9Log('test')
@@ -143,5 +146,26 @@ test('Http transport', async (t) => {
 	})
 	const scope = nock(URL).post(PATH).reply(200)
 	log.info('Info message')
+	t.pass()
+})
+
+test('Custom transport (LogStash)', async (t) => {
+	const log = n9Log('test', {
+		console: false,
+		transports: [
+			new ElasticSearch({
+				index: 'n9-log',
+				level: 'info',
+				mappingTemplate: require('winston-elasticsearch/index-template-mapping.json'),
+				flushInterval: 200
+			})
+		]
+	})
+	log.verbose('Verbose message')
+	log.debug('Debug message')
+	log.info('Info message')
+	log.warn('Warn message', { foo: 'bar' })
+	log.error('Error message', new Error('Foo'))
+	await new Promise((resolve) => setTimeout(resolve, 1000))
 	t.pass()
 })
