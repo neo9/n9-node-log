@@ -29,7 +29,7 @@ log.warn('Warning, this feature will be removed soon')
 log.error('An error appened')
 ```
 
-```bash
+```console
 2017-05-12T15:57:14.474Z - info: [my-app-name] This is an information message
 2017-05-12T15:57:14.689Z - warn: [my-app-name] Warning, this feature will be removed soon
 2017-05-12T15:57:14.974Z - error: [my-app-name] An error appened
@@ -42,7 +42,7 @@ log.info('Log with metadata', { anything: 'this is metadata' })
 log.error('Here an error', new Error('hello'))
 ```
 
-```bash
+```console
 2017-05-12T15:57:14.474Z - info: [my-app-name] Log with metadata anything=this is metadata
 2017-05-12T15:57:14.785Z - error: [node-ts-skeleton] Here an error Error: hello
     at Object.<anonymous> (/home/schopin/Neo9/node-ts-skeleton/src/index.ts:16:28)
@@ -58,7 +58,7 @@ const logUsers = log.module('users')
 logUsers.info('Log specific to users module')
 ```
 
-```bash
+```console
 2017-05-12T15:57:14.474Z - info: [my-app-name:users] Log specific to users module
 ```
 
@@ -69,7 +69,7 @@ log.profile('test')
 setTimeout(() => log.profile('test'), 1000)
 ```
 
-```bash
+```console
 2017-05-12T15:57:14.474Z - info: [my-app-name] test durationMs=1000
 ```
 
