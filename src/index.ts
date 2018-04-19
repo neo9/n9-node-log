@@ -57,10 +57,6 @@ export class N9Log {
 		this.options.transports = this.options.transports || []
 		this.options.filters = this.options.filters || []
 		this.initLogger()
-		// Add stream for morgan middleware
-		this.stream = {
-			write: (message) => this.info(message.replace(/\n$/, '')) // remove \n added by morgan at the end
-		}
 	}
 
 	public addFilter(filter: winston.MetadataFilter) {
@@ -83,6 +79,11 @@ export class N9Log {
 		this.debug = this.log.debug.bind(this.log)
 		this.verbose = this.log.verbose.bind(this.log)
 		this.profile = this.log.profile.bind(this.log)
+
+		// Add stream for morgan middleware
+		this.stream = {
+			write: (message) => this.info(message.replace(/\n$/, '')) // remove \n added by morgan at the end
+		}
 	}
 
 	private createLogger(level: string) {
