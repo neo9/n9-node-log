@@ -50,16 +50,21 @@ test('Simple use case with modules', (t) => {
 	log.info('Info message')
 	log.warn('Warning message')
 	log.error('Error message')
+	log.addFilter((level, msg, meta) => {
+		return `(filter) ${msg}`;
+	})
+	log.info('Info message with filter')
 	stdMock.restore()
 	const output = stdMock.flush()
 	// Check that logs are written in the right std
-	t.is(output.stdout.length, 4)
+	t.is(output.stdout.length, 5)
 	t.is(output.stderr.length, 1)
 	// Check order
 	t.true(output.stdout[0].includes('[test:ava] Verbose message'))
 	t.true(output.stdout[1].includes('[test:ava] Debug message'))
 	t.true(output.stdout[2].includes('[test:ava] Info message'))
 	t.true(output.stdout[3].includes('[test:ava] Warning message'))
+	t.true(output.stdout[4].includes('[test:ava] (filter) Info message with filter'))
 	t.true(output.stderr[0].includes('[test:ava] Error message'))
 })
 

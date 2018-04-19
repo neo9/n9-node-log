@@ -5,8 +5,9 @@ export namespace N9Log {
 		level?: string
 		console?: boolean
 		files?: FilesOptions[]
-		http?: HttpOptions[],
+		http?: HttpOptions[]
 		transports?: any[]
+		filters?: winston.MetadataFilter[]
 	}
 
 	export interface FilesOptions {
@@ -54,8 +55,27 @@ export class N9Log {
 		this.options.files = this.options.files || []
 		this.options.http = this.options.http || []
 		this.options.transports = this.options.transports || []
+		this.options.filters = this.options.filters || []
+		this.initLogger()
+		// Add stream for morgan middleware
+		this.stream = {
+			write: (message) => this.info(message.replace(/\n$/, '')) // remove \n added by morgan at the end
+		}
+	}
+
+	public addFilter(filter: winston.MetadataFilter) {
+		this.options.filters.push(filter)
+		this.initLogger()
+	}
+
+	public module(name: string, options?: N9Log.Options) {
+		return new N9Log(`${this.name}:${name}`)
+	}
+
+	private initLogger() {
 		// Logger
 		this.log = this.createLogger(this.level)
+
 		// Add methods
 		this.error = this.log.error.bind(this.log)
 		this.warn = this.log.warn.bind(this.log)
@@ -63,14 +83,6 @@ export class N9Log {
 		this.debug = this.log.debug.bind(this.log)
 		this.verbose = this.log.verbose.bind(this.log)
 		this.profile = this.log.profile.bind(this.log)
-		// Add stream for morgan middleware
-		this.stream = {
-			write: (message) => this.info(message.replace(/\n$/, '')) // remove \n added by morgan at the end
-		}
-	}
-
-	public module(name: string) {
-		return new N9Log(`${this.name}:${name}`, this.options)
 	}
 
 	private createLogger(level: string) {
@@ -78,6 +90,7 @@ export class N9Log {
 		// Instanciate the logger
 		return new winston.Logger({
 			transports,
+			filters: this.options.filters,
 			levels: {
 				error: 0,
 				warn: 1,
