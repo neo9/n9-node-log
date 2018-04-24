@@ -65,7 +65,7 @@ export class N9Log {
 	}
 
 	public module(name: string, options?: N9Log.Options) {
-		return new N9Log(`${this.name}:${name}`)
+		return new N9Log(`${this.name}:${name}`, options || this.options)
 	}
 
 	private initLogger() {
