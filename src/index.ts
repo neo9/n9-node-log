@@ -4,6 +4,7 @@ export namespace N9Log {
 	export interface Options {
 		level?: string
 		console?: boolean
+		formatJSON?: boolean
 		files?: FilesOptions[]
 		http?: HttpOptions[]
 		transports?: any[]
@@ -52,6 +53,7 @@ export class N9Log {
 		// tslint:disable-next-line:no-console
 		this.level = process.env.N9LOG || this.options.level || 'verbose'
 		this.options.console = (typeof this.options.console === 'boolean' ? this.options.console : true)
+		this.options.formatJSON = (typeof this.options.formatJSON === 'boolean' ? this.options.formatJSON : false)
 		this.options.files = this.options.files || []
 		this.options.http = this.options.http || []
 		this.options.transports = this.options.transports || []
@@ -120,9 +122,10 @@ export class N9Log {
 					level: this.level,
 					label: this.name,
 					timestamp: true,
-					stderrLevels: ['error']
-				})
-			)
+					stderrLevels: ['error'],
+					json: this.options.formatJSON,
+					stringify: (obj) => JSON.stringify(obj)
+				}))
 		}
 		// Add file transport
 		this.options.files.forEach((fileOptions, index) => {
@@ -130,6 +133,8 @@ export class N9Log {
 				new winston.transports.File({
 					name: `file-transport-${index}`,
 					level: this.level,
+					json: this.options.formatJSON,
+					stringify: (obj) => JSON.stringify(obj),
 					...fileOptions
 				})
 			)
@@ -140,6 +145,8 @@ export class N9Log {
 				new winston.transports.Http({
 					name: `http-transport-${index}`,
 					level: this.level,
+					json: this.options.formatJSON,
+					stringify: (obj) => JSON.stringify(obj),
 					...httpOptions
 				})
 			)

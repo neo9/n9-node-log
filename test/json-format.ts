@@ -11,7 +11,9 @@ import * as ElasticSearch from 'winston-elasticsearch'
 
 test('Simple use case', (t) => {
 	process.env.N9LOG = 'verbose'
-	const log = n9Log('test')
+	const log = n9Log('test', {
+		formatJSON: true
+	})
 	stdMock.use()
 	log.verbose('Verbose message')
 	log.debug('Debug message')
@@ -24,26 +26,28 @@ test('Simple use case', (t) => {
 	t.is(output.stdout.length, 4)
 	t.is(output.stderr.length, 1)
 	// Check order
-	t.true(output.stdout[0].includes('[test] Verbose message'))
-	t.true(output.stdout[1].includes('[test] Debug message'))
-	t.true(output.stdout[2].includes('[test] Info message'))
-	t.true(output.stdout[3].includes('[test] Warning message'))
-	t.true(output.stderr[0].includes('[test] Error message'))
+	t.true(output.stdout[0].includes('{"level":"verbose","message":"Verbose message","label":"test"'))
+	t.true(output.stdout[1].includes('{"level":"debug","message":"Debug message","label":"test"'))
+	t.true(output.stdout[2].includes('{"level":"info","message":"Info message","label":"test"'))
+	t.true(output.stdout[3].includes('{"level":"warn","message":"Warning message","label":"test"'))
+	t.true(output.stderr[0].includes('{"level":"error","message":"Error message","label":"test"'))
+
 	delete process.env.N9LOG
 })
 
 test('Profiling', (t) => {
-	const log = n9Log('test')
+	const log = n9Log('test', { formatJSON: true })
 	stdMock.use()
 	log.profile('foo')
 	log.profile('foo')
 	stdMock.restore()
 	const output = stdMock.flush()
-	t.true(output.stdout[0].includes('[test] foo durationMs='))
+	t.true(output.stdout[0].includes(',"level":"info","message":"foo","label":"test"'))
+	t.true(output.stdout[0].includes('"durationMs":'))
 })
 
 test('Simple use case with modules', (t) => {
-	const log = n9Log('test', { level: 'verbose' }).module('ava')
+	const log = n9Log('test', { formatJSON: true, level: 'verbose' }).module('ava')
 	stdMock.use()
 	log.verbose('Verbose message')
 	log.debug('Debug message')
@@ -51,7 +55,7 @@ test('Simple use case with modules', (t) => {
 	log.warn('Warning message')
 	log.error('Error message')
 	log.addFilter((level, msg, meta) => {
-		return `(filter) ${msg}`
+		return { msg: `(filter) ${msg}`, meta: { method: 'GET', path: '/foo' } }
 	})
 	log.info('Info message with filter')
 	stdMock.restore()
@@ -60,12 +64,12 @@ test('Simple use case with modules', (t) => {
 	t.is(output.stdout.length, 5)
 	t.is(output.stderr.length, 1)
 	// Check order
-	t.true(output.stdout[0].includes('[test:ava] Verbose message'))
-	t.true(output.stdout[1].includes('[test:ava] Debug message'))
-	t.true(output.stdout[2].includes('[test:ava] Info message'))
-	t.true(output.stdout[3].includes('[test:ava] Warning message'))
-	t.true(output.stdout[4].includes('[test:ava] (filter) Info message with filter'))
-	t.true(output.stderr[0].includes('[test:ava] Error message'))
+	t.true(output.stdout[0].includes('{"level":"verbose","message":"Verbose message","label":"test:ava"'))
+	t.true(output.stdout[1].includes('{"level":"debug","message":"Debug message","label":"test:ava"'))
+	t.true(output.stdout[2].includes('{"level":"info","message":"Info message","label":"test:ava"'))
+	t.true(output.stdout[3].includes('{"level":"warn","message":"Warning message","label":"test:ava"'))
+	t.true(output.stderr[0].includes('{"level":"error","message":"Error message","label":"test:ava"'))
+	t.true(output.stdout[4].includes('{"method":"GET","path":"/foo","level":"info","message":"(filter) Info message with filter","label":"test:ava"'))
 })
 
 test('With no transport', (t) => {
@@ -88,6 +92,7 @@ test('File transport', async (t) => {
 	const log = n9Log('test', {
 		level: 'verbose',
 		console: false,
+		formatJSON: true,
 		files: [{
 			filename: file.path
 		}]
@@ -129,14 +134,14 @@ test('File transport', async (t) => {
 })
 
 test('Stream property', async (t) => {
-	const log = n9Log('stream')
+	const log = n9Log('stream', { formatJSON: true })
 	stdMock.use()
 	t.truthy(log.stream)
 	t.is(typeof log.stream.write, 'function')
 	log.stream.write('foo')
 	stdMock.restore()
 	const output = stdMock.flush()
-	t.true(output.stdout[0].includes('[stream] foo'))
+	t.true(output.stdout[0].includes('level":"info","message":"foo","label":"stream"'))
 })
 
 test('Http transport', async (t) => {
@@ -144,6 +149,7 @@ test('Http transport', async (t) => {
 	const PATH = '/log'
 	const log = n9Log('test', {
 		console: false,
+		formatJSON: true,
 		http: [{
 			port: 1234,
 			path: PATH
@@ -151,26 +157,5 @@ test('Http transport', async (t) => {
 	})
 	const scope = nock(URL).post(PATH).reply(200)
 	log.info('Info message')
-	t.pass()
-})
-
-test('Custom transport (LogStash)', async (t) => {
-	const log = n9Log('test', {
-		console: false,
-		transports: [
-			new ElasticSearch({
-				index: 'n9-log',
-				level: 'info',
-				mappingTemplate: require('winston-elasticsearch/index-template-mapping.json'),
-				flushInterval: 200
-			})
-		]
-	})
-	log.verbose('Verbose message')
-	log.debug('Debug message')
-	log.info('Info message')
-	log.warn('Warn message', { foo: 'bar' })
-	log.error('Error message', new Error('Foo'))
-	await new Promise((resolve) => setTimeout(resolve, 1000))
 	t.pass()
 })
