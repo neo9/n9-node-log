@@ -7,6 +7,10 @@ Logging node module based on Winston.
 [![Coverage](https://img.shields.io/codecov/c/github/neo9/n9-node-log/master.svg)](https://codecov.io/gh/neo9/n9-node-log)
 [![license](https://img.shields.io/github/license/neo9/n9-node-log.svg)](https://github.com/neo9/n9-node-log/blob/master/LICENSE)
 
+## Requirements
+
+- NodeJS >= 8.0
+
 ## Installation
 
 ```bash
@@ -75,14 +79,14 @@ setTimeout(() => log.profile('test'), 1000)
 
 ## Log level
 
-You can filter the list of logs on startup with the `N9LOG` environement or with the `level` option.
+You can filter the list of logs on startup with the `N9LOG` environment or with the `level` option.
 
 Possible values:
 
 - `verbose`: Display all logs
 - `debug`: Display debug + info + warn + error logs
 - `info`: Display info + warn + error logs
-- `warn`: Display info + warn logs
+- `warn`: Display warn + error logs
 - `error`: Display only error logs
 
 Default value: `verbose`
