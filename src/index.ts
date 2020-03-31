@@ -51,7 +51,7 @@ export class N9Log {
 		// Options
 		this.name = name
 		// tslint:disable-next-line:no-console
-		this.level = process.env.N9LOG || this.options.level || 'verbose'
+		this.level = process.env.N9LOG || this.options.level || 'info'
 		this.options.console = (typeof this.options.console === 'boolean' ? this.options.console : true)
 		this.options.formatJSON = (typeof this.options.formatJSON === 'boolean' ? this.options.formatJSON : false)
 		this.options.files = this.options.files || []
