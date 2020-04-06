@@ -1,3 +1,10 @@
+## [3.0.1-0](https://github.com/neo9/n9-node-log/compare/3.0.0-rc.0...3.0.1-0) (2020-04-06)
+
+
+### release
+
+* Fix tag name ([8335090](https://github.com/neo9/n9-node-log/commit/8335090c9615c569b144ec8c0bd9d95991659944))
+
 # [3.0.0-rc.0](https://github.com/neo9/n9-node-log/compare/v2.4.0...v3.0.0-rc.0) (2020-04-06)
 
 
