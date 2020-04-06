@@ -89,7 +89,7 @@ Possible values:
 - `warn`: Display warn + error logs
 - `error`: Display only error logs
 
-Default value: `verbose`
+Default value: `info`
 
 Example: `N9LOG=error node server.js` will display only error logs.
 
