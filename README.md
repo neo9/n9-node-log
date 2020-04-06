@@ -20,17 +20,17 @@ npm install --save @neo9/n9-node-log
 ## Usage
 
 ```ts
-import n9Log from '@neo9/n9-node-log'
+import n9Log from '@neo9/n9-node-log';
 
-const log = n9Log('my-app-name')
+const log = n9Log('my-app-name');
 
 // Write on stdout
-log.verbose('This is a verbose message')
-log.debug('This is a debug message')
-log.info('This is an information message')
-log.warn('Warning, this feature will be removed soon')
+log.verbose('This is a verbose message');
+log.debug('This is a debug message');
+log.info('This is an information message');
+log.warn('Warning, this feature will be removed soon');
 // Write on stderr
-log.error('An error appened')
+log.error('An error appened');
 ```
 
 ```console
@@ -42,8 +42,8 @@ log.error('An error appened')
 ## Metadata
 
 ```ts
-log.info('Log with metadata', { anything: 'this is metadata' })
-log.error('Here an error', new Error('hello'))
+log.info('Log with metadata', { anything: 'this is metadata' });
+log.error('Here an error', new Error('hello'));
 ```
 
 ```console
@@ -57,9 +57,9 @@ log.error('Here an error', new Error('hello'))
 ## Prefixing
 
 ```ts
-const logUsers = log.module('users')
+const logUsers = log.module('users');
 
-logUsers.info('Log specific to users module')
+logUsers.info('Log specific to users module');
 ```
 
 ```console
@@ -69,8 +69,8 @@ logUsers.info('Log specific to users module')
 ## Profiling
 
 ```ts
-log.profile('test')
-setTimeout(() => log.profile('test'), 1000)
+log.profile('test');
+setTimeout(() => log.profile('test'), 1000);
 ```
 
 ```console
@@ -108,8 +108,8 @@ Example:
 
 ```ts
 const log = n9Log('my-app-name', {
-  console: false, // Don't output the logs into the console
-})
+	console: false, // Don't output the logs into the console
+});
 ```
 
 ### `files`
@@ -128,13 +128,13 @@ Example:
 
 ```ts
 const log = n9Log('my-app-name', {
-  files: [
-    {
-      level: 'info',
-      filename: '/tmp/info-log.log'
-    }
-  ]
-})
+	files: [
+		{
+			level: 'info',
+			filename: '/tmp/info-log.log',
+		},
+	],
+});
 ```
 
 ### `http`
@@ -152,14 +152,14 @@ Example:
 
 ```ts
 const log = n9Log('my-app-name', {
-  http: [
-    {
-      host: 'my-logs.io',
-      path: '/save',
-      ssl: true
-    }
-  ]
-})
+	http: [
+		{
+			host: 'my-logs.io',
+			path: '/save',
+			ssl: true,
+		},
+	],
+});
 ```
 
 ### `transports`
@@ -172,17 +172,17 @@ Useful for adding custom transports into `n9-node-log`:
 Example:
 
 ```ts
-import * as WinstonElasticSearch from 'winston-elasticsearch'
+import * as WinstonElasticSearch from 'winston-elasticsearch';
 
 const log = n9Log('test', {
-  console: false,
-  transports: [
-    new WinstonElasticSearch({
-      index: 'n9-log',
-      level: 'info',
-      mappingTemplate: require('winston-elasticsearch/index-template-mapping.json'),
-      flushInterval: 200
-    })
-  ]
-})
+	console: false,
+	transports: [
+		new WinstonElasticSearch({
+			index: 'n9-log',
+			level: 'info',
+			mappingTemplate: require('winston-elasticsearch/index-template-mapping.json'),
+			flushInterval: 200,
+		}),
+	],
+});
 ```

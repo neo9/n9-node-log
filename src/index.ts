@@ -1,95 +1,101 @@
-import * as winston from 'winston'
+import * as winston from 'winston';
 
+// tslint:disable-next-line:no-namespace
 export namespace N9Log {
 	export interface Options {
-		level?: string
-		console?: boolean
-		formatJSON?: boolean
-		files?: FilesOptions[]
-		http?: HttpOptions[]
-		transports?: any[]
-		filters?: winston.MetadataFilter[]
+		level?: string;
+		console?: boolean;
+		formatJSON?: boolean;
+		files?: FilesOptions[];
+		http?: HttpOptions[];
+		transports?: any[];
+		filters?: winston.MetadataFilter[];
 	}
 
 	export interface FilesOptions {
-		level?: 'error' | 'warn' | 'info' | 'debug' | 'verbose'
-		filename: string
-		maxsize?: number
-		maxFiles?: number
+		level?: 'error' | 'warn' | 'info' | 'debug' | 'verbose';
+		filename: string;
+		maxsize?: number;
+		maxFiles?: number;
 	}
 
 	export interface HttpOptions {
-		host?: string
-		port?: number
-		path?: string
+		host?: string;
+		port?: number;
+		path?: string;
 		auth?: {
-			username: string
-			password: string
-		}
-		ssl?: boolean
+			username: string;
+			password: string;
+		};
+		ssl?: boolean;
 	}
-	export type ProfileMethod = (id: string, msg?: string, meta?: any, callback?: (err: Error, level: string, msg: string, meta: any) => void) => winston.LoggerInstance
+	export type ProfileMethod = (
+		id: string,
+		msg?: string,
+		meta?: any,
+		callback?: (err: Error, level: string, msg: string, meta: any) => void,
+	) => winston.LoggerInstance;
 }
 
 export class N9Log {
+	public error: winston.LeveledLogMethod;
+	public warn: winston.LeveledLogMethod;
+	public info: winston.LeveledLogMethod;
+	public debug: winston.LeveledLogMethod;
+	public verbose: winston.LeveledLogMethod;
+	public profile: N9Log.ProfileMethod;
+	public stream: { write: (message: string) => winston.LoggerInstance };
 
-	public error: winston.LeveledLogMethod
-	public warn: winston.LeveledLogMethod
-	public info: winston.LeveledLogMethod
-	public debug: winston.LeveledLogMethod
-	public verbose: winston.LeveledLogMethod
-	public profile: N9Log.ProfileMethod
-	public stream: { write: (message) => winston.LoggerInstance }
-
-	private name: string
-	private level: string
-	private options: N9Log.Options
-	private log: winston.LoggerInstance
+	private name: string;
+	private level: string;
+	private options: N9Log.Options;
+	private log: winston.LoggerInstance;
 
 	constructor(name: string, options?: N9Log.Options) {
-		this.options = options || {}
+		this.options = options || {};
 		// Options
-		this.name = name
+		this.name = name;
 		// tslint:disable-next-line:no-console
-		this.level = process.env.N9LOG || this.options.level || 'info'
-		this.options.console = (typeof this.options.console === 'boolean' ? this.options.console : true)
-		this.options.formatJSON = (typeof this.options.formatJSON === 'boolean' ? this.options.formatJSON : false)
-		this.options.files = this.options.files || []
-		this.options.http = this.options.http || []
-		this.options.transports = this.options.transports || []
-		this.options.filters = this.options.filters || []
-		this.initLogger()
+		this.level = process.env.N9LOG || this.options.level || 'info';
+		this.options.console = typeof this.options.console === 'boolean' ? this.options.console : true;
+		this.options.formatJSON =
+			typeof this.options.formatJSON === 'boolean' ? this.options.formatJSON : false;
+		this.options.files = this.options.files || [];
+		this.options.http = this.options.http || [];
+		this.options.transports = this.options.transports || [];
+		this.options.filters = this.options.filters || [];
+		this.initLogger();
 	}
 
-	public addFilter(filter: winston.MetadataFilter) {
-		this.options.filters.push(filter)
-		this.initLogger()
+	public addFilter(filter: winston.MetadataFilter): void {
+		this.options.filters.push(filter);
+		this.initLogger();
 	}
 
-	public module(name: string, options?: N9Log.Options) {
-		return new N9Log(`${this.name}:${name}`, options || this.options)
+	public module(name: string, options?: N9Log.Options): N9Log {
+		return new N9Log(`${this.name}:${name}`, options || this.options);
 	}
 
-	private initLogger() {
+	private initLogger(): void {
 		// Logger
-		this.log = this.createLogger(this.level)
+		this.log = this.createLogger(this.level);
 
 		// Add methods
-		this.error = this.log.error.bind(this.log)
-		this.warn = this.log.warn.bind(this.log)
-		this.info = this.log.info.bind(this.log)
-		this.debug = this.log.debug.bind(this.log)
-		this.verbose = this.log.verbose.bind(this.log)
-		this.profile = this.log.profile.bind(this.log)
+		this.error = this.log.error.bind(this.log);
+		this.warn = this.log.warn.bind(this.log);
+		this.info = this.log.info.bind(this.log);
+		this.debug = this.log.debug.bind(this.log);
+		this.verbose = this.log.verbose.bind(this.log);
+		this.profile = this.log.profile.bind(this.log);
 
 		// Add stream for morgan middleware
 		this.stream = {
-			write: (message) => this.info(message.replace(/\n$/, '')) // remove \n added by morgan at the end
-		}
+			write: (message) => this.info(message.replace(/\n$/, '')), // remove \n added by morgan at the end
+		};
 	}
 
-	private createLogger(level: string) {
-		const transports = this.getTransporters()
+	private createLogger(level: string): winston.LoggerInstance {
+		const transports = this.getTransporters();
 		// Instanciate the logger
 		return new winston.Logger({
 			transports,
@@ -99,20 +105,20 @@ export class N9Log {
 				warn: 1,
 				info: 2,
 				debug: 3,
-				verbose: 4
+				verbose: 4,
 			},
 			colors: {
 				error: 'red',
 				warn: 'yellow',
 				info: 'cyan',
 				debug: 'green',
-				verbose: 'blue'
-			}
-		})
+				verbose: 'blue',
+			},
+		});
 	}
 
-	private getTransporters() {
-		const transports = []
+	private getTransporters(): winston.TransportInstance[] {
+		const transports: winston.TransportInstance[] = [];
 
 		// Add console transport
 		if (this.options.console) {
@@ -124,8 +130,9 @@ export class N9Log {
 					timestamp: true,
 					stderrLevels: ['error'],
 					json: this.options.formatJSON,
-					stringify: (obj) => JSON.stringify(obj)
-				}))
+					stringify: (obj) => JSON.stringify(obj),
+				}),
+			);
 		}
 		// Add file transport
 		this.options.files.forEach((fileOptions, index) => {
@@ -135,10 +142,10 @@ export class N9Log {
 					level: this.level,
 					json: this.options.formatJSON,
 					stringify: (obj) => JSON.stringify(obj),
-					...fileOptions
-				})
-			)
-		})
+					...fileOptions,
+				}),
+			);
+		});
 		// Add http transport
 		this.options.http.forEach((httpOptions, index) => {
 			transports.push(
@@ -147,19 +154,19 @@ export class N9Log {
 					level: this.level,
 					json: this.options.formatJSON,
 					stringify: (obj) => JSON.stringify(obj),
-					...httpOptions
-				})
-			)
-		})
+					...httpOptions,
+				} as any),
+			);
+		});
 		// Add custom transports
 		this.options.transports.forEach((transport) => {
-			transports.push(transport)
-		})
+			transports.push(transport);
+		});
 
-		return transports
+		return transports;
 	}
 }
 
-export default function(name: string, options?: N9Log.Options): N9Log {
-	return new N9Log(name, options)
+export default function (name: string, options?: N9Log.Options): N9Log {
+	return new N9Log(name, options);
 }

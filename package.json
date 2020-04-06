@@ -2,55 +2,137 @@
   "name": "@neo9/n9-node-log",
   "version": "2.6.0",
   "description": "Logging node module based on Winston",
-  "main": "dist/src/index.js",
-  "types": "dist/src/index.d.ts",
-  "files": [
-    "dist/src"
-  ],
-  "nyc": {
-    "include": [
-      "dist/src/"
-    ]
-  },
-  "scripts": {
-    "build": "rimraf dist/ && tsc",
-    "lint": "tslint src/*.ts",
-    "test": "npm run lint && npm run build && nyc ava --verbose --serial dist/test/ && nyc report --reporter=html",
-    "test:dev": "npm run lint --force && npm run build && nyc ava --verbose --serial dist/test/ && nyc report --reporter=html",
-    "coverage": "nyc report --reporter=text-lcov > coverage.lcov && codecov",
-    "preversion": "npm test",
-    "prepublish": "npm run build"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/neo9/n9-node-log"
-  },
-  "author": "Sebastien Chopin <sebastien.chopin@neo9.fr>",
-  "dependencies": {
-    "@types/winston": "^2.3.6",
-    "winston": "^2.4.0"
-  },
-  "devDependencies": {
-    "@types/fs-extra": "^4.0.2",
-    "@types/nock": "^8.2.1",
-    "@types/node": "^8.0.45",
-    "ava": "^0.22.0",
-    "codecov": "^2.3.1",
-    "fs-extra": "^4.0.2",
-    "nock": "^9.0.22",
-    "nyc": "^11.2.1",
-    "rimraf": "^2.6.2",
-    "std-mocks": "^1.0.1",
-    "tmp-promise": "^1.0.3",
-    "tslint": "^5.7.0",
-    "typescript": "^2.5.3",
-    "winston-elasticsearch": "^0.5.3"
-  },
   "keywords": [
     "node log",
     "winston",
     "log",
     "logging",
     "debug"
-  ]
+  ],
+  "author": "Benjamin DANIEL <benjamin.daniel@neo9.fr>",
+  "license": "GNU",
+  "main": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
+  "files": [
+    "dist/src"
+  ],
+  "scripts": {
+    "build": "rimraf dist/ && tsc",
+    "lint": "tslint --project tsconfig.json --format verbose '{src,test}/**/*.ts'",
+    "lint:apply": "npm run format && tslint --fix --project tsconfig.json '{src,test}/**/*.ts'",
+    "format": "prettier --write '{,@(src|test)/**/}*.*'",
+    "test:dev": "export NODE_ENV=test && TS_NODE_FILES=true ava --verbose --color --serial --watch",
+    "test": "npm run lint && npm run build && export NODE_ENV=test && nyc ava --verbose --color --serial && nyc report --reporter=html",
+    "coverage": "nyc report --reporter=text-lcov > coverage.lcov && codecov",
+    "preversion": "npm test",
+    "prepublishOnly": "npm run build",
+    "release": "export BABEL_DISABLE_CACHE=1 && release-it --ci",
+    "release:dry": "export BABEL_DISABLE_CACHE=1 && release-it --ci --dry-run=true",
+    "post:release": "echo Successfully released $npm_package_version"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/neo9/n9-node-log"
+  },
+  "engines": {
+    "node": ">=10.0.0"
+  },
+  "dependencies": {
+    "@types/winston": "^2.3.6",
+    "winston": "^2.4.4"
+  },
+  "devDependencies": {
+    "@ava/typescript": "^1.1.1",
+    "@commitlint/cli": "^8.3.5",
+    "@neo9/n9-coding-style": "^1.0.2",
+    "@release-it/conventional-changelog": "^1.1.0",
+    "@types/debug": "^4.1.5",
+    "@types/fs-extra": "^8.1.0",
+    "@types/nock": "^11.1.0",
+    "@types/node": "^13.11.0",
+    "ava": "^3.6.0",
+    "codecov": "^3.6.5",
+    "conventional-changelog-cli": "^2.0.31",
+    "fs-extra": "^9.0.0",
+    "husky": "^4.2.3",
+    "nock": "^12.0.3",
+    "nyc": "^15.0.1",
+    "prettier": "^2.0.4",
+    "release-it": "^13.5.1",
+    "rimraf": "^3.0.2",
+    "std-mocks": "^1.0.1",
+    "tmp-promise": "^2.0.2",
+    "ts-node": "^8.8.2",
+    "tslint": "^6.1.1",
+    "tslint-config-prettier": "^1.18.0",
+    "tslint-plugin-prettier": "^2.3.0",
+    "typescript": "^3.8.3",
+    "winston-elasticsearch": "0.5.9"
+  },
+  "ava": {
+    "files": [
+      "test/*"
+    ],
+    "timeout": "1m",
+    "extensions": [
+      "ts"
+    ],
+    "require": [
+      "ts-node/register"
+    ]
+  },
+  "commitlint": {
+    "parserPreset": {
+      "parserOpts": {
+        "headerPattern": "^([a-zA-Z0-9]*): ([a-zA-Z0-9-_' .]*)$",
+        "headerCorrespondence": [
+          "scope",
+          "subject"
+        ]
+      }
+    },
+    "rules": {
+      "scope-empty": [
+        2,
+        "never"
+      ],
+      "scope-case": [
+        2,
+        "always",
+        "lower-case"
+      ],
+      "scope-max-length": [
+        2,
+        "always",
+        12
+      ],
+      "subject-empty": [
+        2,
+        "never"
+      ],
+      "subject-case": [
+        2,
+        "always",
+        [
+          "sentence-case"
+        ]
+      ],
+      "subject-full-stop": [
+        2,
+        "never",
+        "."
+      ],
+      "subject-max-length": [
+        2,
+        "always",
+        70
+      ]
+    }
+  },
+  "husky": {
+    "hooks": {
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS",
+      "pre-commit": "npm run format && npm run lint"
+    }
+  }
 }
