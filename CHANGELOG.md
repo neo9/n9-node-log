@@ -1,3 +1,10 @@
+# [3.0.0-rc.4](https://github.com/neo9/n9-node-log/compare/3.0.0-rc.3...3.0.0-rc.4) (2020-09-23)
+
+
+### yarn
+
+* Upgrade all dependencies except winston ([d6ab65a](https://github.com/neo9/n9-node-log/commit/d6ab65a8a190c13ccdee7739e364ad03efaf4ef9))
+
 # [3.0.0-rc.3](https://github.com/neo9/n9-node-log/compare/3.0.0-rc.2...3.0.0-rc.3) (2020-09-23)
 
 
