@@ -1,3 +1,10 @@
+# [3.0.0-rc.3](https://github.com/neo9/n9-node-log/compare/3.0.0-rc.2...3.0.0-rc.3) (2020-09-23)
+
+
+### yarn
+
+* Upgrade release-it and its dependencies ([20edcce](https://github.com/neo9/n9-node-log/commit/20edcce7459606bfd35a431c96e2c94810682962))
+
 # [3.0.0-rc.2](https://github.com/neo9/n9-node-log/compare/3.0.0-rc.1...3.0.0-rc.2) (2020-09-23)
 
 
