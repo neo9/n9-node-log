@@ -1,3 +1,16 @@
+# [3.0.0-rc.2](https://github.com/neo9/n9-node-log/compare/3.0.0-rc.1...3.0.0-rc.2) (2020-09-23)
+
+
+### travis
+
+* Add build on nodejs 14 ([9ea9e6c](https://github.com/neo9/n9-node-log/commit/9ea9e6c8437b16dbeea0fd57c45434112d7d5893))
+
+### yarn
+
+* Fix repositories urls ([0868f11](https://github.com/neo9/n9-node-log/commit/0868f1122d84d41b80e10a85562bff88e9a8d7c6))
+* Fix upgrade winston to v 2.4.5 to fix nodejs 14 warning ([9c94ac7](https://github.com/neo9/n9-node-log/commit/9c94ac79971b8342900a6b63795a5cf7221e37f4))
+* Upgrade winston to v 2.4.5 to fix nodejs 14 warning ([a6dc772](https://github.com/neo9/n9-node-log/commit/a6dc772d233fe04e3d5de630f723a96de8491891))
+
 # [3.0.0-rc.1](https://github.com/neo9/n9-node-log/compare/3.0.1-0...3.0.0-rc.1) (2020-04-06)
 
 ## [3.0.1-0](https://github.com/neo9/n9-node-log/compare/3.0.0-rc.0...3.0.1-0) (2020-04-06)
