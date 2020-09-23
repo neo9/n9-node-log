@@ -1,3 +1,5 @@
+# [3.0.0](https://github.com/neo9/n9-node-log/compare/3.0.0-rc.4...3.0.0) (2020-09-23)
+
 # [3.0.0-rc.4](https://github.com/neo9/n9-node-log/compare/3.0.0-rc.3...3.0.0-rc.4) (2020-09-23)
 
 
