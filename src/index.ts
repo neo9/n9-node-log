@@ -35,9 +35,9 @@ export namespace N9Log {
 		meta?: any,
 		callback?: (err: Error, level: string, msg: string, meta: any) => void,
 	) => winston.LoggerInstance;
-}
 
-export type Level = 'error' | 'warn' | 'info' | 'debug' | 'verbose';
+	export type Level = 'error' | 'warn' | 'info' | 'debug' | 'verbose';
+}
 
 export class N9Log {
 	public error: winston.LeveledLogMethod;
@@ -52,7 +52,7 @@ export class N9Log {
 	private readonly level: string;
 	private readonly options: N9Log.Options;
 	private log: winston.LoggerInstance;
-	private isLevelEnabledCache: Partial<Record<Level, boolean>>;
+	private isLevelEnabledCache: Partial<Record<N9Log.Level, boolean>>;
 
 	constructor(name: string, options?: N9Log.Options) {
 		this.options = options || {};
@@ -80,13 +80,13 @@ export class N9Log {
 		return new N9Log(`${this.name}:${name}`, options || this.options);
 	}
 
-	public isLevelEnabled(level: Level): boolean {
+	public isLevelEnabled(level: N9Log.Level): boolean {
 		return this.isLevelEnabledCache[level];
 	}
 
 	private initLogger(): void {
 		// Logger
-		this.log = this.createLogger(this.level);
+		this.log = this.createLogger();
 
 		// Add methods
 		this.error = this.log.error.bind(this.log);
@@ -102,7 +102,7 @@ export class N9Log {
 		};
 	}
 
-	private createLogger(level: string): winston.LoggerInstance {
+	private createLogger(): winston.LoggerInstance {
 		const transports = this.getTransporters();
 		// Instanciate the logger
 		return new winston.Logger({
