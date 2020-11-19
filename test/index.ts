@@ -29,11 +29,11 @@ ava('Simple use case', (t) => {
 	t.true(output.stdout[2].includes('[test] Info message'));
 	t.true(output.stdout[3].includes('[test] Warning message'));
 	t.true(output.stderr[0].includes('[test] Error message'));
-	t.true(log.isLevelEnabled("verbose"));
-	t.true(log.isLevelEnabled("debug"));
-	t.true(log.isLevelEnabled("info"));
-	t.true(log.isLevelEnabled("warn"));
-	t.true(log.isLevelEnabled("error"));
+	t.true(log.isLevelEnabled('verbose'));
+	t.true(log.isLevelEnabled('debug'));
+	t.true(log.isLevelEnabled('info'));
+	t.true(log.isLevelEnabled('warn'));
+	t.true(log.isLevelEnabled('error'));
 	delete process.env.N9LOG;
 });
 
@@ -46,11 +46,11 @@ ava('Profiling', (t) => {
 	const output = stdMock.flush();
 	t.true(output.stdout[0].includes('[test] foo durationMs='));
 
-	t.false(log.isLevelEnabled("verbose")); // default level is info
-	t.false(log.isLevelEnabled("debug")); // default level is info
-	t.true(log.isLevelEnabled("info"));
-	t.true(log.isLevelEnabled("warn"));
-	t.true(log.isLevelEnabled("error"));
+	t.false(log.isLevelEnabled('verbose')); // default level is info
+	t.false(log.isLevelEnabled('debug')); // default level is info
+	t.true(log.isLevelEnabled('info'));
+	t.true(log.isLevelEnabled('warn'));
+	t.true(log.isLevelEnabled('error'));
 });
 
 ava('Simple use case with modules', (t) => {

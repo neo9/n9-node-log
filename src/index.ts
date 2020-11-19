@@ -184,7 +184,9 @@ export class N9Log {
 					);
 					continue;
 				case 'warn':
-					this.isLevelEnabledCache[level] = ['warn', 'info', 'debug', 'verbose'].includes(this.level);
+					this.isLevelEnabledCache[level] = ['warn', 'info', 'debug', 'verbose'].includes(
+						this.level,
+					);
 					continue;
 				case 'info':
 					this.isLevelEnabledCache[level] = ['info', 'debug', 'verbose'].includes(this.level);
