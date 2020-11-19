@@ -3,7 +3,7 @@ import * as winston from 'winston';
 // tslint:disable-next-line:no-namespace
 export namespace N9Log {
 	export interface Options {
-		level?: string;
+		level?: Level;
 		console?: boolean;
 		formatJSON?: boolean;
 		files?: FilesOptions[];
@@ -13,7 +13,7 @@ export namespace N9Log {
 	}
 
 	export interface FilesOptions {
-		level?: 'error' | 'warn' | 'info' | 'debug' | 'verbose';
+		level?: Level;
 		filename: string;
 		maxsize?: number;
 		maxFiles?: number;
@@ -37,6 +37,8 @@ export namespace N9Log {
 	) => winston.LoggerInstance;
 }
 
+export type Level = 'error' | 'warn' | 'info' | 'debug' | 'verbose';
+
 export class N9Log {
 	public error: winston.LeveledLogMethod;
 	public warn: winston.LeveledLogMethod;
@@ -46,10 +48,11 @@ export class N9Log {
 	public profile: N9Log.ProfileMethod;
 	public stream: { write: (message: string) => winston.LoggerInstance };
 
-	private name: string;
-	private level: string;
-	private options: N9Log.Options;
+	private readonly name: string;
+	private readonly level: string;
+	private readonly options: N9Log.Options;
 	private log: winston.LoggerInstance;
+	private isLevelEnabledCache: Partial<Record<Level, boolean>>;
 
 	constructor(name: string, options?: N9Log.Options) {
 		this.options = options || {};
@@ -57,6 +60,7 @@ export class N9Log {
 		this.name = name;
 		// tslint:disable-next-line:no-console
 		this.level = process.env.N9LOG || this.options.level || 'info';
+		this.initIsLevelEnabledCache();
 		this.options.console = typeof this.options.console === 'boolean' ? this.options.console : true;
 		this.options.formatJSON =
 			typeof this.options.formatJSON === 'boolean' ? this.options.formatJSON : false;
@@ -74,6 +78,10 @@ export class N9Log {
 
 	public module(name: string, options?: N9Log.Options): N9Log {
 		return new N9Log(`${this.name}:${name}`, options || this.options);
+	}
+
+	public isLevelEnabled(level: Level): boolean {
+		return this.isLevelEnabledCache[level];
 	}
 
 	private initLogger(): void {
@@ -164,6 +172,30 @@ export class N9Log {
 		});
 
 		return transports;
+	}
+
+	private initIsLevelEnabledCache(): void {
+		this.isLevelEnabledCache = {};
+		for (const level of ['error', 'warn', 'info', 'debug', 'verbose']) {
+			switch (level) {
+				case 'error':
+					this.isLevelEnabledCache[level] = ['error', 'warn', 'info', 'debug', 'verbose'].includes(
+						this.level,
+					);
+					continue;
+				case 'warn':
+					this.isLevelEnabledCache[level] = ['warn', 'info', 'debug', 'verbose'].includes(this.level);
+					continue;
+				case 'info':
+					this.isLevelEnabledCache[level] = ['info', 'debug', 'verbose'].includes(this.level);
+					continue;
+				case 'debug':
+					this.isLevelEnabledCache[level] = ['debug', 'verbose'].includes(this.level);
+					continue;
+				case 'verbose':
+					this.isLevelEnabledCache[level] = ['verbose'].includes(this.level);
+			}
+		}
 	}
 }
 
