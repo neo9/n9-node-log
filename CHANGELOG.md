@@ -1,3 +1,18 @@
+# [3.1.0](https://github.com/neo9/n9-node-log/compare/3.0.0...3.1.0) (2020-11-19)
+
+
+### doc
+
+* Improve readme documentation ([1a98b77](https://github.com/neo9/n9-node-log/commit/1a98b77b7b5457c68c9e401f7c8706f1ad21d49c))
+
+### format
+
+* Fix formatting ([fe9ace5](https://github.com/neo9/n9-node-log/commit/fe9ace5705c938ba8d30340a8cd23036e85ca915))
+
+### levels
+
+* Add function is level enabled ([566754d](https://github.com/neo9/n9-node-log/commit/566754d330cc2c5790f9b3614dbcd79f653c208c))
+
 # [3.0.0](https://github.com/neo9/n9-node-log/compare/3.0.0-rc.4...3.0.0) (2020-09-23)
 
 # [3.0.0-rc.4](https://github.com/neo9/n9-node-log/compare/3.0.0-rc.3...3.0.0-rc.4) (2020-09-23)
