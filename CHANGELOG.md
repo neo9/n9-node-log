@@ -1,3 +1,10 @@
+## [3.1.1](https://github.com/neo9/n9-node-log/compare/3.1.0...3.1.1) (2020-11-19)
+
+
+### types
+
+* Fix level namespace ([3b4a23b](https://github.com/neo9/n9-node-log/commit/3b4a23bce3b5d4c6e48ee6080a57563692bfb3f1))
+
 # [3.1.0](https://github.com/neo9/n9-node-log/compare/3.0.0...3.1.0) (2020-11-19)
 
 
