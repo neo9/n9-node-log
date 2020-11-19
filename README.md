@@ -9,7 +9,7 @@ Logging node module based on Winston.
 
 ## Requirements
 
-- NodeJS >= 8.0
+- NodeJS >= 10.0.0
 
 ## Installation
 
@@ -92,6 +92,14 @@ Possible values:
 Default value: `info`
 
 Example: `N9LOG=error node server.js` will display only error logs.
+
+For performance matter, you can check if you need to compute your log data :
+
+```js
+if (log.isLevelEnabled('debug')) {
+	log.debug('My debug log', { complexDataAsOneField: JSON.stringify(data) });
+}
+```
 
 ## Transports
 
