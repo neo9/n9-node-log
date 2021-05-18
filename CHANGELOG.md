@@ -1,3 +1,14 @@
+# [3.2.0](https://github.com/neo9/n9-node-log/compare/3.1.1...3.2.0) (2021-05-18)
+
+
+### node
+
+* Drop support of node 10 and add node 16 ([a6ae8f3](https://github.com/neo9/n9-node-log/commit/a6ae8f3660700e5443036943f0a947749a9f6351))
+
+### yarn
+
+* Update dependencies ([e9b63fc](https://github.com/neo9/n9-node-log/commit/e9b63fc49589d6373de35bfdcec1297cb3128285))
+
 ## [3.1.1](https://github.com/neo9/n9-node-log/compare/3.1.0...3.1.1) (2020-11-19)
 
 
