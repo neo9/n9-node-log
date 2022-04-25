@@ -1,3 +1,21 @@
+
+
+## [3.2.1](https://github.com/neo9/n9-node-log/compare/3.2.0...3.2.1) (2022-04-25)
+
+
+### build
+
+* Use github-actions for build instead of travis ([3906366](https://github.com/neo9/n9-node-log/commit/3906366ca60b34cfe8b2166d884d6d9ea9f565d0))
+
+### lint
+
+* Use eslint instead of tslint with n9-coding-style ([170c832](https://github.com/neo9/n9-node-log/commit/170c832ce760f156695595baae8bca4adc3f3007))
+
+### yarn
+
+* Upgrade dependencies ([13d5447](https://github.com/neo9/n9-node-log/commit/13d54477d9d33e8012483549da5a12b25b28b6f8))
+* Upgrade indirect dependencies for security issues ([41dac39](https://github.com/neo9/n9-node-log/commit/41dac39ae6b93b68627aebd6bfe487af3f8b69a5))
+
 # [3.2.0](https://github.com/neo9/n9-node-log/compare/3.1.1...3.2.0) (2021-05-18)
 
 
@@ -334,4 +352,3 @@
 ### tag
 
 * 0.1.0 release ([211369b](https://github.com/neo9/n9-node-log/commit/211369b591e9d0df5f6b1a52e5c3c12b44355489))
-
