@@ -3,10 +3,10 @@ import { readFile } from 'fs-extra';
 import * as nock from 'nock';
 import * as stdMock from 'std-mocks';
 import * as tmp from 'tmp-promise';
+import * as ElasticSearch from 'winston-elasticsearch';
 
 import src from '../src';
 
-import * as ElasticSearch from 'winston-elasticsearch';
 const print = false;
 
 ava('Simple use case', (t) => {
@@ -61,9 +61,7 @@ ava('Simple use case with modules', (t) => {
 	log.info('Info message');
 	log.warn('Warning message');
 	log.error('Error message');
-	log.addFilter((level, msg, meta) => {
-		return `(filter) ${msg}`;
-	});
+	log.addFilter((level, msg) => `(filter) ${msg}`);
 	log.info('Info message with filter');
 	stdMock.restore();
 	const output = stdMock.flush();
@@ -111,6 +109,7 @@ ava('File transport', async (t) => {
 	log.info('Info message');
 	log.warn('Warning message');
 	log.error('Error message');
+	// eslint-disable-next-line no-promise-executor-return
 	await new Promise((resolve) => setTimeout(resolve, 1000));
 	const output = await readFile(file.path, 'utf-8');
 	const lines = output.split('\n');
@@ -142,7 +141,7 @@ ava('File transport', async (t) => {
 	t.true(!!errorLog.timestamp);
 });
 
-ava('Stream property', async (t) => {
+ava('Stream property', (t) => {
 	const log = src('stream');
 	stdMock.use({ print });
 	t.truthy(log.stream);
@@ -153,19 +152,19 @@ ava('Stream property', async (t) => {
 	t.true(output.stdout[0].includes('[stream] foo'));
 });
 
-ava('Http transport', async (t) => {
-	const URL = 'http://localhost:1234';
-	const PATH = '/log';
+ava('Http transport', (t) => {
+	const url = 'http://localhost:1234';
+	const path = '/log';
 	const log = src('test', {
 		console: false,
 		http: [
 			{
 				port: 1234,
-				path: PATH,
+				path,
 			},
 		],
 	});
-	const scope = nock(URL).post(PATH).reply(200);
+	nock(url).post(path).reply(200);
 	log.info('Info message');
 	t.pass();
 });
@@ -177,6 +176,7 @@ ava('Custom transport (LogStash)', async (t) => {
 			new ElasticSearch({
 				index: 'n9-log',
 				level: 'info',
+				// eslint-disable-next-line global-require
 				mappingTemplate: require('winston-elasticsearch/index-template-mapping.json'),
 				flushInterval: 200,
 			}),
@@ -187,6 +187,7 @@ ava('Custom transport (LogStash)', async (t) => {
 	log.info('Info message');
 	log.warn('Warn message', { foo: 'bar' });
 	log.error('Error message', new Error('Foo'));
+	// eslint-disable-next-line no-promise-executor-return
 	await new Promise((resolve) => setTimeout(resolve, 1000));
 	t.pass();
 });

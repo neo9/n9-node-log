@@ -18,8 +18,8 @@
   ],
   "scripts": {
     "build": "rimraf dist/ && tsc",
-    "lint": "tslint --project tsconfig.json --format verbose '{src,test}/**/*.ts'",
-    "lint:apply": "npm run format && tslint --fix --project tsconfig.json '{src,test}/**/*.ts'",
+    "lint": "eslint --config .eslintrc.yaml '{src,test}/**/*.ts'",
+    "lint:apply": "npm run format && npx eslint --fix '{src,test}/**/*.ts'",
     "format": "prettier --write '{,@(src|test)/**/}*.*'",
     "test:dev": "export NODE_ENV=test && TS_NODE_FILES=true ava --verbose --color --serial --watch",
     "test": "npm run lint && npm run build && export NODE_ENV=test && nyc ava --verbose --color --serial && nyc report --reporter=html",
@@ -44,7 +44,7 @@
   "devDependencies": {
     "@ava/typescript": "^1.1.1",
     "@commitlint/cli": "^12.1.4",
-    "@neo9/n9-coding-style": "^2.0.0",
+    "@neo9/n9-coding-style": "^3.0.1",
     "@release-it/conventional-changelog": "^2.0.1",
     "@types/debug": "^4.1.5",
     "@types/fs-extra": "^9.0.11",

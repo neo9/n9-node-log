@@ -1,16 +1,8 @@
 import * as winston from 'winston';
 
-// tslint:disable-next-line:no-namespace
+// eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace N9Log {
-	export interface Options {
-		level?: Level;
-		console?: boolean;
-		formatJSON?: boolean;
-		files?: FilesOptions[];
-		http?: HttpOptions[];
-		transports?: any[];
-		filters?: winston.MetadataFilter[];
-	}
+	export type Level = 'error' | 'warn' | 'info' | 'debug' | 'verbose';
 
 	export interface FilesOptions {
 		level?: Level;
@@ -29,29 +21,43 @@ export namespace N9Log {
 		};
 		ssl?: boolean;
 	}
+
+	export interface Options {
+		level?: Level;
+		console?: boolean;
+		formatJSON?: boolean;
+		files?: FilesOptions[];
+		http?: HttpOptions[];
+		transports?: any[];
+		filters?: winston.MetadataFilter[];
+	}
+
 	export type ProfileMethod = (
 		id: string,
 		msg?: string,
 		meta?: any,
 		callback?: (err: Error, level: string, msg: string, meta: any) => void,
 	) => winston.LoggerInstance;
-
-	export type Level = 'error' | 'warn' | 'info' | 'debug' | 'verbose';
 }
 
+// eslint-disable-next-line @typescript-eslint/no-redeclare
 export class N9Log {
 	public error: winston.LeveledLogMethod;
 	public warn: winston.LeveledLogMethod;
 	public info: winston.LeveledLogMethod;
 	public debug: winston.LeveledLogMethod;
 	public verbose: winston.LeveledLogMethod;
+
+	// eslint-disable-next-line no-use-before-define
 	public profile: N9Log.ProfileMethod;
 	public stream: { write: (message: string) => winston.LoggerInstance };
 
 	private readonly name: string;
 	private readonly level: string;
+	// eslint-disable-next-line no-use-before-define
 	private readonly options: N9Log.Options;
 	private log: winston.LoggerInstance;
+	// eslint-disable-next-line no-use-before-define
 	private isLevelEnabledCache: Partial<Record<N9Log.Level, boolean>>;
 
 	constructor(name: string, options?: N9Log.Options) {
@@ -195,12 +201,11 @@ export class N9Log {
 					this.isLevelEnabledCache[level] = ['debug', 'verbose'].includes(this.level);
 					continue;
 				case 'verbose':
+				default:
 					this.isLevelEnabledCache[level] = ['verbose'].includes(this.level);
 			}
 		}
 	}
 }
 
-export default function (name: string, options?: N9Log.Options): N9Log {
-	return new N9Log(name, options);
-}
+export default (name: string, options?: N9Log.Options): N9Log => new N9Log(name, options);
