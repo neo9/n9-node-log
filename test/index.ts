@@ -1,35 +1,29 @@
 import ava from 'ava';
-import { readFile } from 'fs-extra';
-import * as nock from 'nock';
-import * as stdMock from 'std-mocks';
 import * as tmp from 'tmp-promise';
-import * as ElasticSearch from 'winston-elasticsearch';
 
 import src from '../src';
+import { getLogsFromFile } from './fixtures/helper';
 
-const print = false;
-
-ava('Simple use case', (t) => {
-	process.env.N9LOG = 'verbose';
-	const log = src('test');
-	stdMock.use({ print });
-	log.verbose('Verbose message');
+ava('Simple use case', async (t) => {
+	process.env.N9LOG = 'trace';
+	const file = await tmp.file();
+	const log = src('test', { formatJSON: false, developmentOutputFilePath: file.path });
+	log.trace('Trace message');
 	log.debug('Debug message');
 	log.info('Info message');
 	log.warn('Warning message');
 	log.error('Error message');
-	stdMock.restore();
-	const output = stdMock.flush();
-	// Check that logs are written in the right std
-	t.is(output.stdout.length, 4);
-	t.is(output.stderr.length, 1);
+
+	const output = await getLogsFromFile(file.path);
+
+	t.is(output.length, 5);
 	// Check order
-	t.true(output.stdout[0].includes('[test] Verbose message'));
-	t.true(output.stdout[1].includes('[test] Debug message'));
-	t.true(output.stdout[2].includes('[test] Info message'));
-	t.true(output.stdout[3].includes('[test] Warning message'));
-	t.true(output.stderr[0].includes('[test] Error message'));
-	t.true(log.isLevelEnabled('verbose'));
+	t.true(output[0].includes('[test] Trace message'));
+	t.true(output[1].includes('[test] Debug message'));
+	t.true(output[2].includes('[test] Info message'));
+	t.true(output[3].includes('[test] Warning message'));
+	t.true(output[4].includes('[test] Error message'));
+	t.true(log.isLevelEnabled('trace'));
 	t.true(log.isLevelEnabled('debug'));
 	t.true(log.isLevelEnabled('info'));
 	t.true(log.isLevelEnabled('warn'));
@@ -37,157 +31,94 @@ ava('Simple use case', (t) => {
 	delete process.env.N9LOG;
 });
 
-ava('Profiling', (t) => {
-	const log = src('test');
-	stdMock.use({ print });
-	log.profile('foo');
-	log.profile('foo');
-	stdMock.restore();
-	const output = stdMock.flush();
-	t.true(output.stdout[0].includes('[test] foo durationMs='));
+ava('Profiling', async (t) => {
+	const file = await tmp.file();
+	const log = src('test', { formatJSON: false, developmentOutputFilePath: file.path });
 
-	t.false(log.isLevelEnabled('verbose')); // default level is info
+	log.profile('foo');
+	log.profile('foo');
+
+	const output = await getLogsFromFile(file.path);
+
+	t.true(output[0].includes('[test] foo {"durationMs":'));
+
+	t.false(log.isLevelEnabled('trace')); // default level is info
 	t.false(log.isLevelEnabled('debug')); // default level is info
 	t.true(log.isLevelEnabled('info'));
 	t.true(log.isLevelEnabled('warn'));
 	t.true(log.isLevelEnabled('error'));
 });
 
-ava('Simple use case with modules', (t) => {
-	const log = src('test', { level: 'verbose' }).module('ava');
-	stdMock.use({ print });
-	log.verbose('Verbose message');
-	log.debug('Debug message');
-	log.info('Info message');
-	log.warn('Warning message');
-	log.error('Error message');
-	log.addFilter((level, msg) => `(filter) ${msg}`);
-	log.info('Info message with filter');
-	stdMock.restore();
-	const output = stdMock.flush();
-	// Check that logs are written in the right std
-	t.is(output.stdout.length, 5);
-	t.is(output.stderr.length, 1);
-	// Check order
-	t.true(output.stdout[0].includes('[test:ava] Verbose message'));
-	t.true(output.stdout[1].includes('[test:ava] Debug message'));
-	t.true(output.stdout[2].includes('[test:ava] Info message'));
-	t.true(output.stdout[3].includes('[test:ava] Warning message'));
-	t.true(output.stdout[4].includes('[test:ava] (filter) Info message with filter'));
-	t.true(output.stderr[0].includes('[test:ava] Error message'));
-});
-
-ava('With no transport', (t) => {
-	const log = src('test', { console: false });
-	stdMock.use({ print });
-	log.verbose('Verbose message');
-	log.debug('Debug message');
-	log.info('Info message');
-	log.warn('Warning message');
-	log.error('Error message');
-	stdMock.restore();
-	const output = stdMock.flush();
-	// Check that logs are not written in std
-	t.is(output.stdout.length, 0);
-	t.is(output.stderr.length, 0);
-});
-
-ava('File transport', async (t) => {
+ava('Simple use case with modules', async (t) => {
 	const file = await tmp.file();
 	const log = src('test', {
-		level: 'verbose',
-		console: false,
-		files: [
-			{
-				filename: file.path,
-			},
-		],
-		formatJSON: true,
-	});
-	log.verbose('Verbose message');
+		formatJSON: false,
+		level: 'trace',
+		developmentOutputFilePath: file.path,
+	}).module('ava');
+
+	log.trace('Trace message');
 	log.debug('Debug message');
 	log.info('Info message');
 	log.warn('Warning message');
 	log.error('Error message');
-	// eslint-disable-next-line no-promise-executor-return
-	await new Promise((resolve) => setTimeout(resolve, 1000));
-	const output = await readFile(file.path, 'utf-8');
-	const lines = output.split('\n');
-	t.is(lines.length, 6); // count last empty line
-	// Check info log
-	const traceLog = JSON.parse(lines[0]);
-	t.is(traceLog.level, 'verbose');
-	t.is(traceLog.message, 'Verbose message');
-	t.true(!!traceLog.timestamp);
-	// Check info log
-	const debugLog = JSON.parse(lines[1]);
-	t.is(debugLog.level, 'debug');
-	t.is(debugLog.message, 'Debug message');
-	t.true(!!debugLog.timestamp);
-	// Check info log
-	const infoLog = JSON.parse(lines[2]);
-	t.is(infoLog.level, 'info');
-	t.is(infoLog.message, 'Info message');
-	t.true(!!infoLog.timestamp);
-	// Check warn log
-	const warnLog = JSON.parse(lines[3]);
-	t.is(warnLog.level, 'warn');
-	t.is(warnLog.message, 'Warning message');
-	t.true(!!warnLog.timestamp);
-	// Check error log
-	const errorLog = JSON.parse(lines[4]);
-	t.is(errorLog.level, 'error');
-	t.is(errorLog.message, 'Error message');
-	t.true(!!errorLog.timestamp);
+
+	const output = await getLogsFromFile(file.path);
+
+	t.is(output.length, 5);
+	// Check order
+	t.true(output[0].includes('[test:ava] Trace message'));
+	t.true(output[1].includes('[test:ava] Debug message'));
+	t.true(output[2].includes('[test:ava] Info message'));
+	t.true(output[3].includes('[test:ava] Warning message'));
+	t.true(output[4].includes('[test:ava] Error message'));
 });
 
-ava('Stream property', (t) => {
-	const log = src('stream');
-	stdMock.use({ print });
+ava('With no transport', async (t) => {
+	const file = await tmp.file();
+	const log = src('test', {
+		formatJSON: false,
+		console: false,
+		developmentOutputFilePath: file.path,
+	});
+	log.trace('Trace message');
+	log.debug('Debug message');
+	log.info('Info message');
+	log.warn('Warning message');
+	log.error('Error message');
+	const output = await getLogsFromFile(file.path);
+	// Check that logs are not written
+	t.is(output.length, 0);
+});
+
+ava('Stream property', async (t) => {
+	const file = await tmp.file();
+	const log = src('stream', { formatJSON: false, developmentOutputFilePath: file.path });
+
 	t.truthy(log.stream);
 	t.is(typeof log.stream.write, 'function');
 	log.stream.write('foo');
-	stdMock.restore();
-	const output = stdMock.flush();
-	t.true(output.stdout[0].includes('[stream] foo'));
+
+	const output = await getLogsFromFile(file.path);
+	t.true(output[0].includes('[stream] foo'));
 });
 
-ava('Http transport', (t) => {
-	const url = 'http://localhost:1234';
-	const path = '/log';
-	const log = src('test', {
-		console: false,
-		http: [
-			{
-				port: 1234,
-				path,
-			},
-		],
-	});
-	nock(url).post(path).reply(200);
-	log.info('Info message');
-	t.pass();
-});
+ava('Log an error', async (t) => {
+	process.env.N9LOG = 'trace';
+	const file = await tmp.file();
+	const log = src('test', { formatJSON: false, developmentOutputFilePath: file.path });
+	log.error('Error message', new Error('something-went-wrong'));
 
-ava('Custom transport (LogStash)', async (t) => {
-	const log = src('test', {
-		console: false,
-		transports: [
-			new ElasticSearch({
-				index: 'n9-log',
-				level: 'info',
-				// eslint-disable-next-line global-require
-				mappingTemplate: require('winston-elasticsearch/index-template-mapping.json'),
-				flushInterval: 200,
-			}),
-		],
-	});
-	log.verbose('Verbose message');
-	log.debug('Debug message');
-	log.info('Info message');
-	log.warn('Warn message', { foo: 'bar' });
-	log.error('Error message', new Error('Foo'));
-	// eslint-disable-next-line no-promise-executor-return
-	await new Promise((resolve) => setTimeout(resolve, 1000));
-	t.pass();
+	const output = await getLogsFromFile(file.path);
+
+	t.is(output.length, 8);
+	// Check order
+	t.true(output[0].includes('[test] Error message'));
+	t.true(output[1].includes('err: {'));
+	t.true(output[2].includes('"type": "Error",'));
+	t.true(output[3].includes('"message": "something-went-wrong",'));
+	t.true(output[4].includes('"stack":'));
+	t.true(output[5].includes('Error: something-went-wrong'));
+	t.true(output[6].includes('at '));
+	delete process.env.N9LOG;
 });

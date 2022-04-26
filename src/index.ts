@@ -1,84 +1,46 @@
-import * as winston from 'winston';
+import { pino } from 'pino';
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace N9Log {
-	export type Level = 'error' | 'warn' | 'info' | 'debug' | 'verbose';
-
-	export interface FilesOptions {
-		level?: Level;
-		filename: string;
-		maxsize?: number;
-		maxFiles?: number;
-	}
-
-	export interface HttpOptions {
-		host?: string;
-		port?: number;
-		path?: string;
-		auth?: {
-			username: string;
-			password: string;
-		};
-		ssl?: boolean;
-	}
+	export type Level = 'silent' | 'error' | 'warn' | 'info' | 'debug' | 'trace';
 
 	export interface Options {
 		level?: Level;
 		console?: boolean;
 		formatJSON?: boolean;
-		files?: FilesOptions[];
-		http?: HttpOptions[];
-		transports?: any[];
-		filters?: winston.MetadataFilter[];
+		developmentOutputFilePath?: string;
 	}
 
-	export type ProfileMethod = (
-		id: string,
-		msg?: string,
-		meta?: any,
-		callback?: (err: Error, level: string, msg: string, meta: any) => void,
-	) => winston.LoggerInstance;
+	export type ProfileMethod = (id: string, msg?: string, meta?: any) => void;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export class N9Log {
-	public error: winston.LeveledLogMethod;
-	public warn: winston.LeveledLogMethod;
-	public info: winston.LeveledLogMethod;
-	public debug: winston.LeveledLogMethod;
-	public verbose: winston.LeveledLogMethod;
-
-	// eslint-disable-next-line no-use-before-define
-	public profile: N9Log.ProfileMethod;
-	public stream: { write: (message: string) => winston.LoggerInstance };
+	public stream: { write: (message: string) => void };
 
 	private readonly name: string;
-	private readonly level: string;
+	// eslint-disable-next-line no-use-before-define
+	private readonly level: N9Log.Level;
 	// eslint-disable-next-line no-use-before-define
 	private readonly options: N9Log.Options;
-	private log: winston.LoggerInstance;
+	private log: pino.Logger;
 	// eslint-disable-next-line no-use-before-define
 	private isLevelEnabledCache: Partial<Record<N9Log.Level, boolean>>;
+	private profilers: Record<string, number> = {};
 
 	constructor(name: string, options?: N9Log.Options) {
 		this.options = options || {};
 		// Options
 		this.name = name;
 		// tslint:disable-next-line:no-console
-		this.level = process.env.N9LOG || this.options.level || 'info';
-		this.initIsLevelEnabledCache();
+		this.level = (process.env.N9LOG as N9Log.Level) || this.options.level || 'info';
 		this.options.console = typeof this.options.console === 'boolean' ? this.options.console : true;
+		if (!this.options.console) {
+			this.level = 'silent';
+		}
+		this.initIsLevelEnabledCache();
 		this.options.formatJSON =
-			typeof this.options.formatJSON === 'boolean' ? this.options.formatJSON : false;
-		this.options.files = this.options.files || [];
-		this.options.http = this.options.http || [];
-		this.options.transports = this.options.transports || [];
-		this.options.filters = this.options.filters || [];
-		this.initLogger();
-	}
-
-	public addFilter(filter: winston.MetadataFilter): void {
-		this.options.filters.push(filter);
+			typeof this.options.formatJSON === 'boolean' ? this.options.formatJSON : true;
 		this.initLogger();
 	}
 
@@ -90,119 +52,131 @@ export class N9Log {
 		return this.isLevelEnabledCache[level];
 	}
 
+	/**
+	 * Tracks the time inbetween subsequent calls to this method with the same
+	 * `id` parameter. The second call to this method will log the difference in
+	 * milliseconds along with the message.
+	 *
+	 * @param id Unique id of the profiler
+	 * @param message Message to print at the end
+	 * @param meta Context to add to the log
+	 */
+	public profile(id: string, message: string = id, meta?: object): void {
+		const time = Date.now();
+		if (this.profilers[id]) {
+			const timeEnd = this.profilers[id];
+			delete this.profilers[id];
+			this.info(message, { ...meta, durationMs: time - timeEnd });
+		} else {
+			this.profilers[id] = time;
+		}
+	}
+
+	public error(message: string, context?: object): void {
+		if (context) this.log.error(context, message);
+		else this.log.error(message);
+	}
+	public warn(message: string, context?: object): void {
+		if (context) this.log.warn(context, message);
+		else this.log.warn(message);
+	}
+	public info(message: string, context?: object): void {
+		if (context) this.log.info(context, message);
+		else this.log.info(message);
+	}
+	public debug(message: string, context?: object): void {
+		if (context) this.log.debug(context, message);
+		else this.log.debug(message);
+	}
+	public trace(message: string, context?: object): void {
+		if (context) this.log.trace(context, message);
+		else this.log.trace(message);
+	}
+
 	private initLogger(): void {
 		// Logger
 		this.log = this.createLogger();
-
-		// Add methods
-		this.error = this.log.error.bind(this.log);
-		this.warn = this.log.warn.bind(this.log);
-		this.info = this.log.info.bind(this.log);
-		this.debug = this.log.debug.bind(this.log);
-		this.verbose = this.log.verbose.bind(this.log);
-		this.profile = this.log.profile.bind(this.log);
-
 		// Add stream for morgan middleware
 		this.stream = {
 			write: (message) => this.info(message.replace(/\n$/, '')), // remove \n added by morgan at the end
 		};
 	}
 
-	private createLogger(): winston.LoggerInstance {
-		const transports = this.getTransporters();
-		// Instanciate the logger
-		return new winston.Logger({
-			transports,
-			filters: this.options.filters,
-			levels: {
-				error: 0,
-				warn: 1,
-				info: 2,
-				debug: 3,
-				verbose: 4,
-			},
-			colors: {
-				error: 'red',
-				warn: 'yellow',
-				info: 'cyan',
-				debug: 'green',
-				verbose: 'blue',
-			},
-		});
-	}
-
-	private getTransporters(): winston.TransportInstance[] {
-		const transports: winston.TransportInstance[] = [];
-
-		// Add console transport
-		if (this.options.console) {
-			transports.push(
-				new winston.transports.Console({
-					colorize: true,
-					level: this.level,
-					label: this.name,
-					timestamp: true,
-					stderrLevels: ['error'],
-					json: this.options.formatJSON,
-					stringify: (obj) => JSON.stringify(obj),
-				}),
-			);
+	private createLogger(): pino.Logger {
+		// eslint-disable-next-line new-cap
+		let transport: pino.TransportPipelineOptions;
+		if (!this.options.formatJSON) {
+			transport = {
+				pipeline: [
+					{
+						target: './custom-pino-pretty',
+						options: {
+							colorize: false,
+							messageKey: 'message',
+							levelKey: 'level',
+							levelLabel: 'level',
+							singleLine: true,
+							ignore: 'pid,hostname,label',
+							destination: this.options.developmentOutputFilePath,
+						},
+					},
+				],
+			};
 		}
-		// Add file transport
-		this.options.files.forEach((fileOptions, index) => {
-			transports.push(
-				new winston.transports.File({
-					name: `file-transport-${index}`,
-					level: this.level,
-					json: this.options.formatJSON,
-					stringify: (obj) => JSON.stringify(obj),
-					...fileOptions,
-				}),
-			);
-		});
-		// Add http transport
-		this.options.http.forEach((httpOptions, index) => {
-			transports.push(
-				new winston.transports.Http({
-					name: `http-transport-${index}`,
-					level: this.level,
-					json: this.options.formatJSON,
-					stringify: (obj) => JSON.stringify(obj),
-					...httpOptions,
-				} as any),
-			);
-		});
-		// Add custom transports
-		this.options.transports.forEach((transport) => {
-			transports.push(transport);
-		});
 
-		return transports;
+		return pino(
+			{
+				timestamp: pino.stdTimeFunctions.isoTime,
+				messageKey: 'message',
+				level: this.level,
+				transport,
+				mixin: () => ({
+					label: this.name,
+				}),
+				formatters: {
+					level: (label) => ({ level: label }),
+				},
+				base: undefined,
+			},
+			pino.multistream(
+				[
+					{ level: 'error', stream: process.stderr },
+					{ level: 'warn', stream: process.stdout },
+					{ level: 'info', stream: process.stdout },
+					{ level: 'debug', stream: process.stdout },
+					{ level: 'trace', stream: process.stdout },
+				],
+				{
+					dedupe: true,
+				},
+			),
+		);
 	}
 
 	private initIsLevelEnabledCache(): void {
 		this.isLevelEnabledCache = {};
-		for (const level of ['error', 'warn', 'info', 'debug', 'verbose']) {
+		for (const level of ['silent', 'error', 'warn', 'info', 'debug', 'trace'] as N9Log.Level[]) {
 			switch (level) {
+				case 'silent':
+					this.isLevelEnabledCache[level] = false;
+					continue;
 				case 'error':
-					this.isLevelEnabledCache[level] = ['error', 'warn', 'info', 'debug', 'verbose'].includes(
+					this.isLevelEnabledCache[level] = ['error', 'warn', 'info', 'debug', 'trace'].includes(
 						this.level,
 					);
 					continue;
 				case 'warn':
-					this.isLevelEnabledCache[level] = ['warn', 'info', 'debug', 'verbose'].includes(
-						this.level,
-					);
+					this.isLevelEnabledCache[level] = ['warn', 'info', 'debug', 'trace'].includes(this.level);
 					continue;
 				case 'info':
-					this.isLevelEnabledCache[level] = ['info', 'debug', 'verbose'].includes(this.level);
+					this.isLevelEnabledCache[level] = ['info', 'debug', 'trace'].includes(this.level);
 					continue;
 				case 'debug':
-					this.isLevelEnabledCache[level] = ['debug', 'verbose'].includes(this.level);
+					this.isLevelEnabledCache[level] = ['debug', 'trace'].includes(this.level);
 					continue;
-				case 'verbose':
+				case 'trace':
 				default:
-					this.isLevelEnabledCache[level] = ['verbose'].includes(this.level);
+					this.isLevelEnabledCache[level] = ['trace'].includes(this.level);
 			}
 		}
 	}
