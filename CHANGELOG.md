@@ -1,5 +1,12 @@
 
 
+# [4.0.0-rc.0](https://github.com/neo9/n9-node-log/compare/3.2.1...4.0.0-rc.0) (2022-04-26)
+
+
+### yarn
+
+* Use pino instead of winston ([425e1c7](https://github.com/neo9/n9-node-log/commit/425e1c7693bb7560ed6b0e724bb5e339586c908a))
+
 ## [3.2.1](https://github.com/neo9/n9-node-log/compare/3.2.0...3.2.1) (2022-04-25)
 
 
