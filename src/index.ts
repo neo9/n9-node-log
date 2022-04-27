@@ -160,15 +160,15 @@ export class N9Log {
 							obj = { err: obj };
 						}
 
-						let result = obj ?? {};
+						const result = obj ?? {};
 						result.message = message;
 
 						if (that.options.filters) {
 							for (const filter of that.options.filters) {
-								result = {
-									...result,
-									...filter.call(null, result),
-								};
+								const filterResult = filter.call(null, result);
+								for (const [key, value] of Object.entries(filterResult)) {
+									result[key] = value;
+								}
 							}
 						}
 						message = result.message;
