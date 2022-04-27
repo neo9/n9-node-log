@@ -1,5 +1,12 @@
 
 
+# [4.0.0-rc.2](https://github.com/neo9/n9-node-log/compare/4.0.0-rc.1...4.0.0-rc.2) (2022-04-27)
+
+
+### format
+
+* Rename time key to timestamp to not change from version 3 ([4626861](https://github.com/neo9/n9-node-log/commit/462686129cb0de2becf2967627b025af4476babc))
+
 # [4.0.0-rc.1](https://github.com/neo9/n9-node-log/compare/4.0.0-rc.0...4.0.0-rc.1) (2022-04-27)
 
 
