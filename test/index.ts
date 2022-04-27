@@ -90,7 +90,7 @@ ava('With no transport', async (t) => {
 	log.info('Info message');
 	log.warn('Warning message');
 	log.error('Error message');
-	const output = await getLogsFromFile(file.path);
+	const output = await getLogsFromFile(file.path, true);
 	// Check that logs are not written
 	t.is(output.length, 0);
 });

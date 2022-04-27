@@ -133,12 +133,13 @@ export class N9Log {
 
 		return pino(
 			{
-				timestamp: pino.stdTimeFunctions.isoTime,
+				timestamp: () => `,"timestamp":"${new Date(Date.now()).toISOString()}"`,
 				messageKey: 'message',
 				level: this.level,
 				transport,
-				mixin: () => ({
+				mixin: (mergeObject: any) => ({
 					label: this.name,
+					timestamp: mergeObject.time,
 				}),
 				formatters: {
 					level: (label) => ({ level: label }),
