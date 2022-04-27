@@ -96,6 +96,13 @@ export class N9Log {
 	private initLogger(): void {
 		// Logger
 		this.log = this.createLogger();
+		if (
+			!this.options.formatJSON &&
+			process.env.NODE_ENV &&
+			process.env.NODE_ENV !== 'development'
+		) {
+			this.log.warn(`It is recommended to use JSON format outside development environment`);
+		}
 		// Add stream for morgan middleware
 		this.stream = {
 			write: (message) => this.info(message.replace(/\n$/, '')), // remove \n added by morgan at the end

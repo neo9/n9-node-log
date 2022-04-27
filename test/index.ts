@@ -4,6 +4,10 @@ import * as tmp from 'tmp-promise';
 import src from '../src';
 import { getLogsFromFile } from './fixtures/helper';
 
+ava.beforeEach(() => {
+	process.env.NODE_ENV = 'development';
+});
+
 ava('Simple use case', async (t) => {
 	process.env.N9LOG = 'trace';
 	const file = await tmp.file();
@@ -96,7 +100,7 @@ ava('Stream property', async (t) => {
 	const log = src('stream', { formatJSON: false, developmentOutputFilePath: file.path });
 
 	t.truthy(log.stream);
-	t.is(typeof log.stream.write, 'function');
+	t.is<string, string>(typeof log.stream.write, 'function');
 	log.stream.write('foo');
 
 	const output = await getLogsFromFile(file.path);
@@ -120,5 +124,21 @@ ava('Log an error', async (t) => {
 	t.true(output[4].includes('"stack":'));
 	t.true(output[5].includes('Error: something-went-wrong'));
 	t.true(output[6].includes('at '));
+	delete process.env.N9LOG;
+});
+
+ava('Log a warning outside dev', async (t) => {
+	process.env.NODE_ENV = 'production';
+	const file = await tmp.file();
+	src('test', { formatJSON: false, developmentOutputFilePath: file.path });
+
+	const output = await getLogsFromFile(file.path);
+
+	t.is(output.length, 1);
+	t.true(
+		output[0].includes(
+			'[test] It is recommended to use JSON format outside development environment',
+		),
+	);
 	delete process.env.N9LOG;
 });

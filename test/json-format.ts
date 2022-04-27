@@ -194,7 +194,7 @@ ava('Stream property', (t) => {
 	const log = src('stream', { formatJSON: true });
 	stdMock.use({ print });
 	t.truthy(log.stream);
-	t.is(typeof log.stream.write, 'function');
+	t.is<string, string>(typeof log.stream.write, 'function');
 	log.stream.write('foo');
 	stdMock.restore();
 	const output = removeDatesInJSONLogs(stdMock.flush());

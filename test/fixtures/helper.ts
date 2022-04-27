@@ -13,7 +13,7 @@ export function removeDatesInJSONLogs(logs: { stdout: string[]; stderr: string[]
 	};
 }
 
-export async function waitFor(durationMs: number = 2_000): Promise<void> {
+export async function waitFor(durationMs: number = 3_000): Promise<void> {
 	return await new Promise((resolve) => {
 		setTimeout(() => {
 			resolve();
