@@ -128,16 +128,16 @@ ava('Simple use case with modules', (t) => {
 	log.info('Info message');
 	log.warn('Warning message');
 	log.error('Error message');
-	// log.addFilter((level, msg) => ({
-	// 	msg: `(filter) ${msg}`,
-	// 	meta: { method: 'GET', path: '/foo' },
-	// }));
-	// log.info('Info message with filter');
+	log.addFilter(({ message }) => ({
+		message: `(filter) ${message}`,
+		meta: { method: 'GET', path: '/foo' },
+	}));
+	log.info('Info message with filter');
 	stdMock.restore();
 	const output = removeDatesInJSONLogs(stdMock.flush());
 
 	// Check that logs are written in the right std
-	t.is(output.stdout.length, 4);
+	t.is(output.stdout.length, 5);
 	t.is(output.stderr.length, 1);
 
 	// Check order
@@ -167,11 +167,15 @@ ava('Simple use case with modules', (t) => {
 		message: 'Error message',
 		label: 'test:ava',
 	});
-	// t.true(
-	// 	output.stdout[4].includes(
-	// 		'{"method":"GET","path":"/foo","level":"info","message":"(filter) Info message with filter","label":"test:ava"',
-	// 	),
-	// );
+	t.deepEqual(JSON.parse(output.stdout[4]), {
+		meta: {
+			method: 'GET',
+			path: '/foo',
+		},
+		level: 'info',
+		message: '(filter) Info message with filter',
+		label: 'test:ava',
+	});
 });
 
 ava('With no transport', (t) => {
@@ -204,4 +208,67 @@ ava('Stream property', (t) => {
 		message: 'foo',
 		label: 'stream',
 	});
+});
+
+ava('Log an error', (t) => {
+	const log = src('test');
+
+	stdMock.use({ print });
+	log.error('Error message', new Error('something-went-wrong'));
+
+	stdMock.restore();
+	const output = removeDatesInJSONLogs(stdMock.flush());
+
+	const logLineParsed = JSON.parse(output.stderr[0]);
+	logLineParsed.err.stack = logLineParsed.err.stack.substring(0, 27);
+	t.deepEqual(logLineParsed, {
+		err: {
+			message: 'something-went-wrong',
+			stack: `Error: something-went-wrong`,
+			type: 'Error',
+		},
+		label: 'test',
+		level: 'error',
+		message: 'Error message',
+	});
+});
+
+ava('Use a predefined filter', (t) => {
+	process.env.N9LOG = 'trace';
+	const log = src('test', {
+		filters: [
+			(logObject): object => ({
+				message: `a message prefix ${logObject.message}`,
+			}),
+		],
+	});
+	stdMock.use({ print });
+	log.trace('Trace message');
+	log.addFilter(() => ({
+		meta: 'metadata',
+	}));
+	log.trace('Trace message');
+	stdMock.restore();
+	const output = removeDatesInJSONLogs(stdMock.flush());
+
+	// Check that logs are written in the right std
+	t.is(output.stdout.length, 2);
+	t.is(output.stderr.length, 0);
+
+	// Check order
+	t.true(output.stdout[0].includes('{"'), 'is JSON shape');
+	t.deepEqual(JSON.parse(output.stdout[0]), {
+		level: 'trace',
+		message: 'a message prefix Trace message',
+		label: 'test',
+	});
+	t.is(output.stdout[0].match(/"message"/g).length, 1, 'one key message only');
+	t.deepEqual(JSON.parse(output.stdout[1]), {
+		level: 'trace',
+		message: 'a message prefix Trace message',
+		label: 'test',
+		meta: 'metadata',
+	});
+
+	delete process.env.N9LOG;
 });

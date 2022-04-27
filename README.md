@@ -109,4 +109,5 @@ if (log.isLevelEnabled('debug')) {
 
 - Log level verbose renamed to log level trace
 - JSON Format is enabled by default, it wasn't before
-- Remove transports and filters features
+- Remove transports features
+- Filters function change their signatures

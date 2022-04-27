@@ -3,15 +3,15 @@ import { pino } from 'pino';
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace N9Log {
 	export type Level = 'silent' | 'error' | 'warn' | 'info' | 'debug' | 'trace';
+	export type Filter = (logObject: object & { message: string; level: string }) => object;
 
 	export interface Options {
 		level?: Level;
 		console?: boolean;
 		formatJSON?: boolean;
 		developmentOutputFilePath?: string;
+		filters?: Filter[];
 	}
-
-	export type ProfileMethod = (id: string, msg?: string, meta?: any) => void;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
@@ -73,24 +73,24 @@ export class N9Log {
 	}
 
 	public error(message: string, context?: object): void {
-		if (context) this.log.error(context, message);
-		else this.log.error(message);
+		this.log.error(context, message);
 	}
 	public warn(message: string, context?: object): void {
-		if (context) this.log.warn(context, message);
-		else this.log.warn(message);
+		this.log.warn(context, message);
 	}
 	public info(message: string, context?: object): void {
-		if (context) this.log.info(context, message);
-		else this.log.info(message);
+		this.log.info(context, message);
 	}
 	public debug(message: string, context?: object): void {
-		if (context) this.log.debug(context, message);
-		else this.log.debug(message);
+		this.log.debug(context, message);
 	}
 	public trace(message: string, context?: object): void {
-		if (context) this.log.trace(context, message);
-		else this.log.trace(message);
+		this.log.trace(context, message);
+	}
+
+	public addFilter(filter: N9Log.Filter): void {
+		if (!this.options.filters) this.options.filters = [];
+		this.options.filters.push(filter);
 	}
 
 	private initLogger(): void {
@@ -130,21 +130,52 @@ export class N9Log {
 				],
 			};
 		}
-
+		// eslint-disable-next-line @typescript-eslint/no-this-alias
+		const that = this;
 		return pino(
 			{
 				timestamp: () => `,"timestamp":"${new Date(Date.now()).toISOString()}"`,
 				messageKey: 'message',
 				level: this.level,
 				transport,
-				mixin: (mergeObject: any) => ({
+				mixin: () => ({
 					label: this.name,
-					timestamp: mergeObject.time,
 				}),
 				formatters: {
 					level: (label) => ({ level: label }),
 				},
 				base: undefined,
+				hooks: {
+					logMethod(args: any[], method: pino.LogFn) {
+						let message;
+						let obj;
+						if (typeof args[0] === 'string') {
+							message = args[0];
+							obj = args[1];
+						} else {
+							message = args[1];
+							obj = args[0];
+						}
+						if (obj instanceof Error) {
+							obj = { err: obj };
+						}
+
+						let result = obj ?? {};
+						result.message = message;
+
+						if (that.options.filters) {
+							for (const filter of that.options.filters) {
+								result = {
+									...result,
+									...filter.call(null, result),
+								};
+							}
+						}
+						message = result.message;
+						result.message = undefined;
+						return method.apply(this, [result, message]);
+					},
+				},
 			},
 			pino.multistream(
 				[
