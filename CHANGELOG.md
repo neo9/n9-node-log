@@ -1,5 +1,12 @@
 
 
+# [4.0.0](https://github.com/neo9/n9-node-log/compare/4.0.0-rc.3...4.0.0) (2022-04-27)
+
+
+### filters
+
+* Improve filters application ([f8b6b1d](https://github.com/neo9/n9-node-log/commit/f8b6b1d2855e8ed31a460eb114a0f0e962c3924a))
+
 # [4.0.0-rc.3](https://github.com/neo9/n9-node-log/compare/4.0.0-rc.2...4.0.0-rc.3) (2022-04-27)
 
 
