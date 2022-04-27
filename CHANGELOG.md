@@ -1,5 +1,12 @@
 
 
+# [4.0.0-rc.3](https://github.com/neo9/n9-node-log/compare/4.0.0-rc.2...4.0.0-rc.3) (2022-04-27)
+
+
+### filters
+
+* Add filters working with pino hook ([798f255](https://github.com/neo9/n9-node-log/commit/798f25533ffed8996ef3e2a1057aee9796843de3))
+
 # [4.0.0-rc.2](https://github.com/neo9/n9-node-log/compare/4.0.0-rc.1...4.0.0-rc.2) (2022-04-27)
 
 
