@@ -1,5 +1,12 @@
 
 
+# [4.0.0-rc.1](https://github.com/neo9/n9-node-log/compare/4.0.0-rc.0...4.0.0-rc.1) (2022-04-27)
+
+
+### env
+
+* Add warning outside dev env if using pino-pretty ([000cd77](https://github.com/neo9/n9-node-log/commit/000cd77e782b006efa725d24301850eb74e77099))
+
 # [4.0.0-rc.0](https://github.com/neo9/n9-node-log/compare/3.2.1...4.0.0-rc.0) (2022-04-26)
 
 
