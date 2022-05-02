@@ -30,7 +30,7 @@ export async function getLogsFromFile(
 	if (expectingEmptyFile) {
 		await waitFor();
 	} else {
-		const maxTry = 50;
+		const maxTry = 100;
 		for (let tryNb = 0; tryNb < maxTry; tryNb += 1) {
 			const fileContent = await fs.readFile(filePath);
 			if (fileContent.length > 0) {

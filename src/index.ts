@@ -6,11 +6,11 @@ export namespace N9Log {
 	export type Filter = (logObject: object & { message: string; level: string }) => object;
 
 	export interface Options {
-		level?: Level;
-		console?: boolean;
-		formatJSON?: boolean;
-		developmentOutputFilePath?: string;
-		filters?: Filter[];
+		level?: Level; // default : info
+		console?: boolean; // default : true
+		formatJSON?: boolean; // default : true
+		developmentOutputFilePath?: string; // default: undefined
+		filters?: Filter[]; // default: undefined
 	}
 }
 
@@ -28,8 +28,8 @@ export class N9Log {
 	private isLevelEnabledCache: Partial<Record<N9Log.Level, boolean>>;
 	private profilers: Record<string, number> = {};
 
-	constructor(name: string, options?: N9Log.Options) {
-		this.options = options || {};
+	constructor(name: string, options?: N9Log.Options, parentLogger?: N9Log) {
+		this.options = options || parentLogger?.options || {};
 		// Options
 		this.name = name;
 		// tslint:disable-next-line:no-console
@@ -41,11 +41,11 @@ export class N9Log {
 		this.initIsLevelEnabledCache();
 		this.options.formatJSON =
 			typeof this.options.formatJSON === 'boolean' ? this.options.formatJSON : true;
-		this.initLogger();
+		this.initLogger(parentLogger?.log);
 	}
 
-	public module(name: string, options?: N9Log.Options): N9Log {
-		return new N9Log(`${this.name}:${name}`, options || this.options);
+	public module(name: string): N9Log {
+		return new N9Log(`${this.name}:${name}`, undefined, this);
 	}
 
 	public isLevelEnabled(level: N9Log.Level): boolean {
@@ -93,9 +93,9 @@ export class N9Log {
 		this.options.filters.push(filter);
 	}
 
-	private initLogger(): void {
+	private initLogger(parentPinoLogger: pino.Logger): void {
 		// Logger
-		this.log = this.createLogger();
+		this.log = this.createLogger(parentPinoLogger);
 		if (
 			!this.options.formatJSON &&
 			process.env.NODE_ENV &&
@@ -109,7 +109,9 @@ export class N9Log {
 		};
 	}
 
-	private createLogger(): pino.Logger {
+	private createLogger(parentPinoLogger: pino.Logger): pino.Logger {
+		if (parentPinoLogger) return parentPinoLogger.child({ label: this.name });
+
 		// eslint-disable-next-line new-cap
 		let transport: pino.TransportPipelineOptions;
 		if (!this.options.formatJSON) {
@@ -138,9 +140,6 @@ export class N9Log {
 				messageKey: 'message',
 				level: this.level,
 				transport,
-				mixin: () => ({
-					label: this.name,
-				}),
 				formatters: {
 					level: (label) => ({ level: label }),
 				},
@@ -189,7 +188,9 @@ export class N9Log {
 					dedupe: true,
 				},
 			),
-		);
+		).child({
+			label: this.name,
+		});
 	}
 
 	private initIsLevelEnabledCache(): void {

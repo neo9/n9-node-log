@@ -1,7 +1,7 @@
 import ava from 'ava';
 import * as tmp from 'tmp-promise';
 
-import src from '../src';
+import src, { N9Log } from '../src';
 import { getLogsFromFile } from './fixtures/helper';
 
 ava.beforeEach(() => {
@@ -141,4 +141,21 @@ ava('Log a warning outside dev', async (t) => {
 		),
 	);
 	delete process.env.N9LOG;
+});
+
+ava('Create many modules, should avoid error "Out of memory: wasm memory"', async (t) => {
+	const file = await tmp.file();
+	const log = src('test', { formatJSON: false, developmentOutputFilePath: file.path });
+	log.info('Simple message 1');
+	let lastModule: N9Log;
+	const nbModules = 100;
+	for (let i = 0; i < nbModules; i += 1) {
+		lastModule = log.module(`sub-module-${i}`);
+	}
+	lastModule.info('Simple message 2');
+
+	const output = await getLogsFromFile(file.path);
+	t.is(output.length, 2);
+	t.true(output[0].includes('[test] Simple message 1'));
+	t.true(output[1].includes(`[test:sub-module-${nbModules - 1}] Simple message 2`));
 });
