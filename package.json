@@ -1,6 +1,6 @@
 {
   "name": "@neo9/n9-node-log",
-  "version": "4.0.0",
+  "version": "4.0.1",
   "description": "Logging node module based on Pino",
   "keywords": [
     "node log",

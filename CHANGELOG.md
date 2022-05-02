@@ -1,5 +1,16 @@
 
 
+## [4.0.1](https://github.com/neo9/n9-node-log/compare/4.0.0...4.0.1) (2022-05-02)
+
+
+### memory
+
+* Fix module creation by re-using the parent one ([e4780b1](https://github.com/neo9/n9-node-log/commit/e4780b1b376ef66659e3ad8f0ac9272499951b8c))
+
+### module
+
+* Restore options parameter on module creation ([98d7326](https://github.com/neo9/n9-node-log/commit/98d7326995b9a7bc5f28f4ec8831977255f1e2a5))
+
 # [4.0.0](https://github.com/neo9/n9-node-log/compare/4.0.0-rc.3...4.0.0) (2022-04-27)
 
 
