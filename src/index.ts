@@ -44,7 +44,10 @@ export class N9Log {
 		this.initLogger(parentLogger?.log);
 	}
 
-	public module(name: string): N9Log {
+	public module(name: string, options?: N9Log.Options): N9Log {
+		if (options) {
+			return new N9Log(`${this.name}:${name}`, options);
+		}
 		return new N9Log(`${this.name}:${name}`, undefined, this);
 	}
 

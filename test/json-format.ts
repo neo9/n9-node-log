@@ -1,8 +1,9 @@
 import ava from 'ava';
 import * as stdMock from 'std-mocks';
+import * as tmp from 'tmp-promise';
 
 import src from '../src';
-import { print, removeDatesInJSONLogs } from './fixtures/helper';
+import { getLogsFromFile, print, removeDatesInJSONLogs } from './fixtures/helper';
 
 ava('Simple use case', (t) => {
 	process.env.N9LOG = 'trace';
@@ -120,7 +121,8 @@ ava('Profiling', (t) => {
 	t.true(output.stdout[0].includes('"durationMs":'));
 });
 
-ava('Simple use case with modules', (t) => {
+ava('Simple use case with modules', async (t) => {
+	const file = await tmp.file();
 	const log = src('test', { formatJSON: true, level: 'trace' }).module('ava');
 	stdMock.use({ print });
 	log.trace('Trace message');
@@ -133,8 +135,13 @@ ava('Simple use case with modules', (t) => {
 		meta: { method: 'GET', path: '/foo' },
 	}));
 	log.info('Info message with filter');
+
+	log
+		.module('module2-not-json', { formatJSON: false, developmentOutputFilePath: file.path })
+		.info(`A message not in " JSON`);
 	stdMock.restore();
 	const output = removeDatesInJSONLogs(stdMock.flush());
+	const outputNotJSON = await getLogsFromFile(file.path);
 
 	// Check that logs are written in the right std
 	t.is(output.stdout.length, 5);
@@ -176,6 +183,14 @@ ava('Simple use case with modules', (t) => {
 		message: '(filter) Info message with filter',
 		label: 'test:ava',
 	});
+	t.is(outputNotJSON.length, 2, `2 logs found`);
+	t.true(
+		outputNotJSON[0].includes(
+			'It is recommended to use JSON format outside development environment',
+		),
+		`1 log found : the warning`,
+	);
+	t.true(outputNotJSON[1].includes('A message not in " JSON'), `1 log found : the printed message`);
 });
 
 ava('With no transport', (t) => {
