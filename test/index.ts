@@ -35,6 +35,23 @@ ava('Simple use case', async (t) => {
 	delete process.env.N9LOG;
 });
 
+ava('Check getters', (t) => {
+	process.env.N9LOG = 'trace';
+	const log = src('test', { formatJSON: false });
+	t.is(log.name, 'test', 'Getter name return the name');
+	t.is(log.level, 'trace', 'Getter level return the level');
+	t.is(log.formatJSON, false, 'Getter formatJSON return the formatJSON enabled or not');
+	delete process.env.N9LOG;
+
+	const log2 = src('test-2', { formatJSON: true, level: 'debug' });
+	t.is(log2.name, 'test-2', 'Getter name return the name test-2');
+	t.is(log2.level, 'debug', 'Getter level return the level default debug');
+	t.is(log2.formatJSON, true, 'Getter formatJSON return the formatJSON enabled or not : true');
+
+	const subLogger = log2.module('module-1');
+	t.is(subLogger.name, 'test-2:module-1', 'Should sub logger name be ');
+});
+
 ava('Profiling', async (t) => {
 	const file = await tmp.file();
 	const log = src('test', { formatJSON: false, developmentOutputFilePath: file.path });
