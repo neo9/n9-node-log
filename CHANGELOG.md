@@ -1,5 +1,18 @@
 
 
+# [4.1.0](https://github.com/neo9/n9-node-log/compare/4.0.1...4.1.0) (2022-12-05)
+
+
+### getters
+
+* Add getters on constructor options ([43fc8f2](https://github.com/neo9/n9-node-log/commit/43fc8f25e2de490d374aefee7345db3e06cdd5e4))
+* Remove unnecessary getters ([82b8da2](https://github.com/neo9/n9-node-log/commit/82b8da213bf767b37599f664407bbb095ee6c09e))
+
+### yarn
+
+* Upgrade parse-url from 6.0.0 to 6.0.5 ([3cda4a4](https://github.com/neo9/n9-node-log/commit/3cda4a48f021801753b6d6abd5cd671b0724387e))
+* Upgrade semver-regex from 3.1.3 to 3.1.4 ([9a8ddb8](https://github.com/neo9/n9-node-log/commit/9a8ddb80000cd47bf8db3db23e95b8876253634d))
+
 ## [4.0.1](https://github.com/neo9/n9-node-log/compare/4.0.0...4.0.1) (2022-05-02)
 
 
