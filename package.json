@@ -10,7 +10,7 @@
     "debug"
   ],
   "author": "Benjamin DANIEL <benjamin.daniel@neo9.fr>",
-  "license": "GNU",
+  "license": "MIT",
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
   "files": [
@@ -28,7 +28,8 @@
     "prepublishOnly": "npm run build",
     "release": "export BABEL_DISABLE_CACHE=1 && release-it --ci",
     "release:dry": "export BABEL_DISABLE_CACHE=1 && release-it --ci --dry-run=true",
-    "post:release": "echo Successfully released $npm_package_version"
+    "post:release": "echo Successfully released $npm_package_version",
+    "prepare": "husky install"
   },
   "repository": {
     "type": "git",
@@ -39,28 +40,28 @@
   },
   "dependencies": {
     "pino": "^8.15.0",
-    "pino-pretty": "^8.1.0"
+    "pino-pretty": "^10.2.0"
   },
   "devDependencies": {
     "@ava/typescript": "^4.1.0",
-    "@commitlint/cli": "^16.3.0",
+    "@commitlint/cli": "^17.7.1",
     "@neo9/n9-coding-style": "^5.1.2",
-    "@release-it/conventional-changelog": "^4.3.0",
+    "@release-it/conventional-changelog": "^7.0.1",
     "@types/debug": "^4.1.8",
-    "@types/fs-extra": "^9.0.13",
+    "@types/fs-extra": "^11.0.1",
     "@types/nock": "^11.1.0",
     "@types/node": "^20.5.9",
     "@types/std-mocks": "^1.0.1",
     "ava": "^5.3.1",
     "codecov": "^3.8.3",
-    "conventional-changelog-cli": "^2.2.2",
-    "fs-extra": "^10.1.0",
-    "husky": "^4.3.8",
+    "conventional-changelog-cli": "^4.0.0",
+    "fs-extra": "^11.1.1",
+    "husky": "^8.0.0",
     "nock": "^13.3.3",
     "nyc": "^15.1.0",
     "prettier": "^3.0.3",
-    "release-it": "^14.14.2",
-    "rimraf": "^3.0.2",
+    "release-it": "^16.1.5",
+    "rimraf": "^5.0.1",
     "std-mocks": "^1.0.1",
     "tmp-promise": "^3.0.3",
     "ts-node": "^10.9.1",
@@ -124,12 +125,6 @@
         "always",
         70
       ]
-    }
-  },
-  "husky": {
-    "hooks": {
-      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS",
-      "pre-commit": "npm run format && npm run lint"
     }
   }
 }
