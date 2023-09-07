@@ -28,7 +28,7 @@ jobs:
       - name: Setup Nodejs with yarn caching
         uses: actions/setup-node@v2
         with:
-          node-version: '20'
+          node-version: ${{ matrix.node-version }}
           cache: yarn
 
       - name: Install dependencies
