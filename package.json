@@ -28,8 +28,7 @@
     "prepublishOnly": "npm run build",
     "release": "export BABEL_DISABLE_CACHE=1 && release-it --ci",
     "release:dry": "export BABEL_DISABLE_CACHE=1 && release-it --ci --dry-run=true",
-    "post:release": "echo Successfully released $npm_package_version",
-    "prepare": "husky install"
+    "post:release": "echo Successfully released $npm_package_version"
   },
   "repository": {
     "type": "git",
@@ -39,7 +38,7 @@
     "node": ">=16.0.0"
   },
   "dependencies": {
-    "pino": "^8.15.0",
+    "pino": "^8.15.1",
     "pino-pretty": "^10.2.0"
   },
   "devDependencies": {
@@ -49,13 +48,13 @@
     "@release-it/conventional-changelog": "^7.0.1",
     "@types/debug": "^4.1.8",
     "@types/fs-extra": "^11.0.1",
-    "@types/node": "^20.5.9",
+    "@types/node": "^20.6.0",
     "@types/std-mocks": "^1.0.1",
     "ava": "^5.3.1",
     "codecov": "^3.8.3",
-    "conventional-changelog-cli": "^4.0.0",
+    "conventional-changelog-cli": "^4.1.0",
     "fs-extra": "^11.1.1",
-    "husky": "^8.0.0",
+    "husky": "^4.3.8",
     "nock": "^13.3.3",
     "nyc": "^15.1.0",
     "prettier": "^3.0.3",
@@ -124,6 +123,12 @@
         "always",
         70
       ]
+    }
+  },
+  "husky": {
+    "hooks": {
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS",
+      "pre-commit": "npm run format && npm run lint"
     }
   }
 }
