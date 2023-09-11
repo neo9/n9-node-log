@@ -22,7 +22,7 @@
     "lint:apply": "npm run format && npx eslint --fix '{src,test}/**/*.ts'",
     "format": "prettier --write '{,@(src|test)/**/}*.*'",
     "test:dev": "export NODE_ENV=test && TS_NODE_FILES=true ava --verbose --color --serial --watch",
-    "test": "npm run lint && npm run build && export NODE_ENV=test && nyc ava --verbose --color --serial --timeout=2m --no-worker-threads && nyc report --reporter=html",
+    "test": "export NODE_ENV=test && nyc ava --verbose --color --serial --timeout=2m --no-worker-threads && nyc report --reporter=html",
     "coverage": "nyc report --reporter=text-lcov > coverage.lcov && codecov",
     "preversion": "npm test",
     "prepublishOnly": "npm run build",
