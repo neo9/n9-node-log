@@ -1,5 +1,25 @@
 
 
+# [5.0.0-rc.0](https://github.com/neo9/n9-node-log/compare/4.1.0...5.0.0-rc.0) (2023-10-03)
+
+
+### node
+
+* Drop support of node 14 and add node 18 and 20 #27 ([b031ef7](https://github.com/neo9/n9-node-log/commit/b031ef72b17402ffc10361aa035c400f9a978591)), closes [#27](https://github.com/neo9/n9-node-log/issues/27)
+
+### release
+
+* Fix release-it command ([9eefc14](https://github.com/neo9/n9-node-log/commit/9eefc14dc53128774ee5f0c2f5a71175dd6d87a9))
+* Upgrade release-it configuration ([2ca9e9f](https://github.com/neo9/n9-node-log/commit/2ca9e9f3a83fd0636f4940202a75a10db6e769ed))
+
+### tests
+
+* Remove lint and build from test command ([b6fb848](https://github.com/neo9/n9-node-log/commit/b6fb848d1412d2a98bfab1f0c46b7f7f55e0fcad))
+
+### yarn
+
+* Remove pino and log by itself #28 ([ab4d466](https://github.com/neo9/n9-node-log/commit/ab4d466f00366444e34dacab3e89bb9b21a4c800)), closes [#28](https://github.com/neo9/n9-node-log/issues/28)
+
 # [4.1.0](https://github.com/neo9/n9-node-log/compare/4.0.1...4.1.0) (2022-12-05)
 
 
