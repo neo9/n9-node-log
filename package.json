@@ -26,8 +26,8 @@
     "coverage": "nyc report --reporter=text-lcov > coverage.lcov && codecov",
     "preversion": "npm test",
     "prepublishOnly": "npm run build",
-    "release": "export BABEL_DISABLE_CACHE=1 && release-it --ci",
-    "release:dry": "export BABEL_DISABLE_CACHE=1 && release-it --ci --dry-run=true"
+    "release": "release-it",
+    "release:dry": "release-it --dry-run"
   },
   "repository": {
     "type": "git",
