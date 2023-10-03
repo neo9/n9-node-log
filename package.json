@@ -38,8 +38,9 @@
     "node": ">=16.0.0"
   },
   "dependencies": {
-    "pino": "^8.15.1",
-    "pino-pretty": "^10.2.0"
+    "chalk": "^4.1.2",
+    "fast-iso-string": "^1.0.0",
+    "fast-safe-stringify": "^2.1.1"
   },
   "devDependencies": {
     "@ava/typescript": "^4.1.0",
@@ -53,7 +54,6 @@
     "ava": "^5.3.1",
     "codecov": "^3.8.3",
     "conventional-changelog-cli": "^4.1.0",
-    "fs-extra": "^11.1.1",
     "husky": "^4.3.8",
     "nock": "^13.3.3",
     "nyc": "^15.1.0",
@@ -61,7 +61,6 @@
     "release-it": "^16.1.5",
     "rimraf": "^5.0.1",
     "std-mocks": "^1.0.1",
-    "tmp-promise": "^3.0.3",
     "ts-node": "^10.9.1",
     "typescript": "^5.2.2"
   },
