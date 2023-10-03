@@ -27,8 +27,7 @@
     "preversion": "npm test",
     "prepublishOnly": "npm run build",
     "release": "export BABEL_DISABLE_CACHE=1 && release-it --ci",
-    "release:dry": "export BABEL_DISABLE_CACHE=1 && release-it --ci --dry-run=true",
-    "post:release": "echo Successfully released $npm_package_version"
+    "release:dry": "export BABEL_DISABLE_CACHE=1 && release-it --ci --dry-run=true"
   },
   "repository": {
     "type": "git",
