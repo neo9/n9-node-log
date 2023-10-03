@@ -1,5 +1,12 @@
 
 
+# [5.0.0-rc.1](https://github.com/neo9/n9-node-log/compare/5.0.0-rc.0...5.0.0-rc.1) (2023-10-03)
+
+
+### filters
+
+* Add support of filters that return undefined ([e1d9534](https://github.com/neo9/n9-node-log/commit/e1d95343b553e8905fb558ae3aff914f35d800eb))
+
 # [5.0.0-rc.0](https://github.com/neo9/n9-node-log/compare/4.1.0...5.0.0-rc.0) (2023-10-03)
 
 
