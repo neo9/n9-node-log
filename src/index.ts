@@ -183,8 +183,10 @@ export class N9Log {
 						formatJSON: this.options.formatJSON,
 					},
 				});
-				outputMessage = filterResult.message ? filterResult.message : outputMessage;
-				outputContext = filterResult.context ?? outputContext;
+				if (filterResult) {
+					outputMessage = filterResult.message ? filterResult.message : outputMessage;
+					outputContext = filterResult.context ?? outputContext;
+				}
 			}
 		}
 		if (this.formatJSON) {

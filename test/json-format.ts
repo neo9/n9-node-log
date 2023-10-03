@@ -275,8 +275,8 @@ test.serial('Use a predefined filter', async (t) => {
 	const { stdout, stderr } = await mockAndCatchStd(() => {
 		const log = src('test', {
 			filters: [
-				(logObject): object => ({
-					message: `a message prefix ${logObject.message}`,
+				({ message }): object => ({
+					message: `a message prefix ${message}`,
 				}),
 			],
 		});
@@ -307,6 +307,33 @@ test.serial('Use a predefined filter', async (t) => {
 		message: 'a message prefix Trace message',
 		label: 'test',
 		meta: 'metadata',
+	});
+
+	delete process.env.N9LOG;
+});
+
+test.serial('Use a filter that return undefined', async (t) => {
+	process.env.N9LOG = 'trace';
+	const { stdout, stderr, error } = await mockAndCatchStd(() => {
+		const log = src('test', {
+			filters: [
+				(): object => {
+					return;
+				},
+			],
+		});
+		log.info('Info message');
+	});
+	removeDatesInJSONLogs({ stdout, stderr });
+
+	t.falsy(error, 'Check errors');
+	t.is(stdout.length, 1);
+	t.is(stderr.length, 0);
+
+	t.deepEqual(JSON.parse(stdout[0]), {
+		level: 'info',
+		message: 'Info message',
+		label: 'test',
 	});
 
 	delete process.env.N9LOG;
