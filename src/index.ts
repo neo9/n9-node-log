@@ -1,15 +1,25 @@
-import { pino } from 'pino';
+import * as chalk from 'chalk';
+import { fastISOString } from 'fast-iso-string';
+import fastSafeStringify from 'fast-safe-stringify';
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace N9Log {
 	export type Level = 'silent' | 'error' | 'warn' | 'info' | 'debug' | 'trace';
-	export type Filter = (logObject: object & { message: string; level: string }) => object;
+	export type OptionsParamsForFilter = Omit<N9Log.Options, 'filters'>;
+	export interface FilterParameter {
+		message: string;
+		context: object;
+		options: OptionsParamsForFilter;
+	}
+
+	export type Filter = (filterParameter: FilterParameter) => {
+		message?: string;
+		context?: object;
+	};
 
 	export interface Options {
 		level?: Level; // default : info
-		console?: boolean; // default : true
 		formatJSON?: boolean; // default : true
-		developmentOutputFilePath?: string; // default: undefined
 		filters?: Filter[]; // default: undefined
 	}
 }
@@ -23,7 +33,6 @@ export class N9Log {
 	public readonly level: N9Log.Level;
 	// eslint-disable-next-line no-use-before-define
 	private readonly options: N9Log.Options;
-	private log: pino.Logger;
 	// eslint-disable-next-line no-use-before-define
 	private isLevelEnabledCache: Partial<Record<N9Log.Level, boolean>>;
 	private profilers: Record<string, number> = {};
@@ -34,14 +43,10 @@ export class N9Log {
 		this.name = name;
 		// tslint:disable-next-line:no-console
 		this.level = (process.env.N9LOG as N9Log.Level) || this.options.level || 'info';
-		this.options.console = typeof this.options.console === 'boolean' ? this.options.console : true;
-		if (!this.options.console) {
-			this.level = 'silent';
-		}
 		this.initIsLevelEnabledCache();
 		this.options.formatJSON =
 			typeof this.options.formatJSON === 'boolean' ? this.options.formatJSON : true;
-		this.initLogger(parentLogger?.log);
+		this.initLogger();
 	}
 
 	get formatJSON(): boolean {
@@ -80,19 +85,19 @@ export class N9Log {
 	}
 
 	public error(message: string, context?: object): void {
-		this.log.error(context, message);
+		this.print('error', message, context);
 	}
 	public warn(message: string, context?: object): void {
-		this.log.warn(context, message);
+		this.print('warn', message, context);
 	}
 	public info(message: string, context?: object): void {
-		this.log.info(context, message);
+		this.print('info', message, context);
 	}
 	public debug(message: string, context?: object): void {
-		this.log.debug(context, message);
+		this.print('debug', message, context);
 	}
 	public trace(message: string, context?: object): void {
-		this.log.trace(context, message);
+		this.print('trace', message, context);
 	}
 
 	public addFilter(filter: N9Log.Filter): void {
@@ -100,104 +105,19 @@ export class N9Log {
 		this.options.filters.push(filter);
 	}
 
-	private initLogger(parentPinoLogger: pino.Logger): void {
+	private initLogger(): void {
 		// Logger
-		this.log = this.createLogger(parentPinoLogger);
 		if (
 			!this.options.formatJSON &&
 			process.env.NODE_ENV &&
-			process.env.NODE_ENV !== 'development'
+			!['development', 'test'].includes(process.env.NODE_ENV)
 		) {
-			this.log.warn(`It is recommended to use JSON format outside development environment`);
+			this.print('warn', `It is recommended to use JSON format outside development environment`);
 		}
 		// Add stream for morgan middleware
 		this.stream = {
 			write: (message) => this.info(message.replace(/\n$/, '')), // remove \n added by morgan at the end
 		};
-	}
-
-	private createLogger(parentPinoLogger: pino.Logger): pino.Logger {
-		if (parentPinoLogger) return parentPinoLogger.child({ label: this.name });
-
-		// eslint-disable-next-line new-cap
-		let transport: pino.TransportPipelineOptions;
-		if (!this.options.formatJSON) {
-			transport = {
-				pipeline: [
-					{
-						target: './custom-pino-pretty',
-						options: {
-							colorize: false,
-							messageKey: 'message',
-							levelKey: 'level',
-							levelLabel: 'level',
-							singleLine: true,
-							ignore: 'pid,hostname,label',
-							destination: this.options.developmentOutputFilePath,
-						},
-					},
-				],
-			};
-		}
-		// eslint-disable-next-line @typescript-eslint/no-this-alias
-		const that = this;
-		return pino(
-			{
-				timestamp: () => `,"timestamp":"${new Date(Date.now()).toISOString()}"`,
-				messageKey: 'message',
-				level: this.level,
-				transport,
-				formatters: {
-					level: (label) => ({ level: label }),
-				},
-				base: undefined,
-				hooks: {
-					logMethod(args: any[], method: pino.LogFn) {
-						let message;
-						let obj;
-						if (typeof args[0] === 'string') {
-							message = args[0];
-							obj = args[1];
-						} else {
-							message = args[1];
-							obj = args[0];
-						}
-						if (obj instanceof Error) {
-							obj = { err: obj };
-						}
-
-						const result = obj ?? {};
-						result.message = message;
-
-						if (that.options.filters) {
-							for (const filter of that.options.filters) {
-								const filterResult = filter.call(null, result);
-								for (const [key, value] of Object.entries(filterResult)) {
-									result[key] = value;
-								}
-							}
-						}
-						message = result.message;
-						result.message = undefined;
-						return method.apply(this, [result, message]);
-					},
-				},
-			},
-			pino.multistream(
-				[
-					{ level: 'error', stream: process.stderr },
-					{ level: 'warn', stream: process.stdout },
-					{ level: 'info', stream: process.stdout },
-					{ level: 'debug', stream: process.stdout },
-					{ level: 'trace', stream: process.stdout },
-				],
-				{
-					dedupe: true,
-				},
-			),
-		).child({
-			label: this.name,
-		});
 	}
 
 	private initIsLevelEnabledCache(): void {
@@ -226,6 +146,120 @@ export class N9Log {
 					this.isLevelEnabledCache[level] = ['trace'].includes(this.level);
 			}
 		}
+	}
+
+	private print(level: N9Log.Level, message: string, context?: object): void {
+		if (this.isLevelEnabled(level)) {
+			const stream = this.getStreamOutputFromLevel(level);
+			stream.write(this.getOutputLine(level, message, context));
+		}
+	}
+
+	private getStreamOutputFromLevel(level: N9Log.Level): NodeJS.WriteStream {
+		switch (level) {
+			case 'error':
+				return process.stderr;
+			case 'silent':
+			case 'warn':
+			case 'info':
+			case 'debug':
+			case 'trace':
+			default:
+				return process.stdout;
+		}
+	}
+
+	private getOutputLine(level: N9Log.Level, message: string, context: object): string {
+		let outputMessage = message;
+		let outputContext = context instanceof Error ? { err: context } : context;
+
+		if (this.options.filters) {
+			for (const filter of this.options.filters) {
+				const filterResult = filter({
+					message: outputMessage,
+					context: outputContext,
+					options: {
+						level: this.options.level,
+						formatJSON: this.options.formatJSON,
+					},
+				});
+				outputMessage = filterResult.message ? filterResult.message : outputMessage;
+				outputContext = filterResult.context ?? outputContext;
+			}
+		}
+		if (this.formatJSON) {
+			return `${fastSafeStringify({
+				...this.jsonify(outputContext),
+				level,
+				timestamp: fastISOString(),
+				label: this.name,
+				message: outputMessage,
+			})}\n`;
+			// {"level":"warn","timestamp":"2023-10-02T12:36:15.480Z","label":"mongo","label":"mongo:mongo","argString":"{\"topologyId\":3}"}
+		}
+		const contextAsString = outputContext
+			? `\n${fastSafeStringify(this.jsonify(outputContext), null, 2).replace(/\\n/g, '\n')}`
+			: '';
+
+		return [
+			fastISOString(),
+			' - ',
+			this.getLevelColored(level),
+			' : [',
+			this.name,
+			'] ',
+			outputMessage,
+			contextAsString,
+			'\n',
+		].join('');
+		// 2023-10-02T10:56:26.444Z - info : [catalogue-scheduler-api:amqp] Connected to amqp server amqp://rabbitmq {"url":"amqp://rabbitmq"}
+	}
+
+	private getLevelColored(level: Omit<N9Log.Level, 'silent'>): string {
+		switch (level) {
+			case 'error':
+				return chalk.red(level);
+			case 'warn':
+				return chalk.yellow(level);
+			case 'info':
+				return chalk.blue(level);
+			case 'debug':
+				return chalk.green(level);
+			case 'trace':
+			default:
+				return chalk.bold(level);
+		}
+	}
+
+	// inspired from https://github.com/dial-once/node-logtify/blob/23e2b41e5218bb0aaead92120cd655a455717e92/src/modules/message.js#L5
+	private jsonify(obj: any): any {
+		if (!obj || ['string', 'number'].includes(typeof obj)) return obj;
+
+		if (Array.isArray(obj)) {
+			const array = [];
+			for (const item of obj) {
+				array.push(this.jsonify(item));
+			}
+			return array;
+		}
+
+		if (obj instanceof Error) {
+			return {
+				name: obj.name,
+				message: obj.message,
+				stack: obj.stack,
+			};
+		}
+
+		if (obj instanceof Date) {
+			return obj;
+		}
+
+		const object = {};
+		for (const [key, value] of Object.entries(obj)) {
+			object[key] = this.jsonify(value);
+		}
+		return object;
 	}
 }
 

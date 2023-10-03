@@ -1,49 +1,47 @@
-import ava from 'ava';
-import * as stdMock from 'std-mocks';
-import * as tmp from 'tmp-promise';
+import test from 'ava';
 
 import src from '../src';
-import { getLogsFromFile, print, removeDatesInJSONLogs } from './fixtures/helper';
+import { mockAndCatchStd, removeDatesInJSONLogs } from './fixtures/helper';
 
-ava('Simple use case', (t) => {
+test.serial('Simple use case', async (t) => {
 	process.env.N9LOG = 'trace';
-	const log = src('test');
-	stdMock.use({ print });
-	log.trace('Trace message');
-	log.debug('Debug message');
-	log.info('Info message');
-	log.warn('Warning message');
-	log.error('Error message');
-	stdMock.restore();
-	const output = removeDatesInJSONLogs(stdMock.flush());
+	const { stdout, stderr } = await mockAndCatchStd(() => {
+		const log = src('test');
+		log.trace('Trace message');
+		log.debug('Debug message');
+		log.info('Info message');
+		log.warn('Warning message');
+		log.error('Error message');
+	});
+	removeDatesInJSONLogs({ stdout, stderr });
 
 	// Check that logs are written in the right std
-	t.is(output.stdout.length, 4);
-	t.is(output.stderr.length, 1);
+	t.is(stdout.length, 4);
+	t.is(stderr.length, 1);
 
 	// Check order
-	t.true(output.stdout[0].includes('{"'), 'is JSON shape');
-	t.deepEqual(JSON.parse(output.stdout[0]), {
+	t.true(stdout[0].includes('{"'), 'is JSON shape');
+	t.deepEqual(JSON.parse(stdout[0]), {
 		level: 'trace',
 		message: 'Trace message',
 		label: 'test',
 	});
-	t.deepEqual(JSON.parse(output.stdout[1]), {
+	t.deepEqual(JSON.parse(stdout[1]), {
 		level: 'debug',
 		message: 'Debug message',
 		label: 'test',
 	});
-	t.deepEqual(JSON.parse(output.stdout[2]), {
+	t.deepEqual(JSON.parse(stdout[2]), {
 		level: 'info',
 		message: 'Info message',
 		label: 'test',
 	});
-	t.deepEqual(JSON.parse(output.stdout[3]), {
+	t.deepEqual(JSON.parse(stdout[3]), {
 		level: 'warn',
 		message: 'Warning message',
 		label: 'test',
 	});
-	t.deepEqual(JSON.parse(output.stderr[0]), {
+	t.deepEqual(JSON.parse(stderr[0]), {
 		level: 'error',
 		message: 'Error message',
 		label: 'test',
@@ -52,49 +50,57 @@ ava('Simple use case', (t) => {
 	delete process.env.N9LOG;
 });
 
-ava('Print context object', (t) => {
+test.serial('Print context object', async (t) => {
 	process.env.N9LOG = 'trace';
-	const log = src('test');
-	stdMock.use({ print });
-	log.trace('Trace message', { contextValue: 'a value' });
-	log.debug('Debug message', { contextValue: 'a value' });
-	log.info('Info message', { contextValue: 'a value' });
-	log.warn('Warning message', { contextValue: 'a value' });
-	log.error('Error message', { contextValue: 'a value' });
-	stdMock.restore();
-	const output = removeDatesInJSONLogs(stdMock.flush());
-
+	const { stdout, stderr } = await mockAndCatchStd(() => {
+		const log = src('test');
+		log.trace('Trace message', { contextValue: 'a value' });
+		log.debug('Debug message', { contextValue: 'a value' });
+		log.info('Info message', { contextValue: 'a value' });
+		log.warn('Warning message', { contextValue: 'a value' });
+		log.error('Error message', { contextValue: 'a value' });
+		log.info('Info message with array in context', {
+			contextValue: { anArray: [1, 2, 3, new Date('2016-03-14T00:00:00.000Z')] },
+		});
+	});
+	removeDatesInJSONLogs({ stdout, stderr });
 	// Check that logs are written in the right std
-	t.is(output.stdout.length, 4);
-	t.is(output.stderr.length, 1);
+	t.is(stdout.length, 5);
+	t.is(stderr.length, 1);
 
 	// Check order
-	t.true(output.stdout[0].includes('{"'), 'is JSON shape');
-	t.deepEqual(JSON.parse(output.stdout[0]), {
+	t.true(stdout[0].includes('{"'), 'is JSON shape');
+	t.deepEqual(JSON.parse(stdout[0]), {
 		level: 'trace',
 		message: 'Trace message',
 		label: 'test',
 		contextValue: 'a value',
 	});
-	t.deepEqual(JSON.parse(output.stdout[1]), {
+	t.deepEqual(JSON.parse(stdout[1]), {
 		level: 'debug',
 		message: 'Debug message',
 		label: 'test',
 		contextValue: 'a value',
 	});
-	t.deepEqual(JSON.parse(output.stdout[2]), {
+	t.deepEqual(JSON.parse(stdout[2]), {
 		level: 'info',
 		message: 'Info message',
 		label: 'test',
 		contextValue: 'a value',
 	});
-	t.deepEqual(JSON.parse(output.stdout[3]), {
+	t.deepEqual(JSON.parse(stdout[3]), {
 		level: 'warn',
 		message: 'Warning message',
 		label: 'test',
 		contextValue: 'a value',
 	});
-	t.deepEqual(JSON.parse(output.stderr[0]), {
+	t.deepEqual(JSON.parse(stdout[4]), {
+		level: 'info',
+		message: 'Info message with array in context',
+		label: 'test',
+		contextValue: { anArray: [1, 2, 3, new Date('2016-03-14T00:00:00.000Z').toISOString()] },
+	});
+	t.deepEqual(JSON.parse(stderr[0]), {
 		level: 'error',
 		message: 'Error message',
 		label: 'test',
@@ -104,77 +110,81 @@ ava('Print context object', (t) => {
 	delete process.env.N9LOG;
 });
 
-ava('Profiling', (t) => {
-	const log = src('test', { formatJSON: true });
-	stdMock.use();
-	log.profile('foo');
-	log.profile('foo');
-	stdMock.restore();
-	const output = removeDatesInJSONLogs(stdMock.flush());
-	const line0 = JSON.parse(output.stdout[0]);
+test.serial('Profiling', async (t) => {
+	const { stdout, stderr } = await mockAndCatchStd(() => {
+		const log = src('test', { formatJSON: true });
+		log.profile('foo');
+		log.profile('foo');
+	});
+	removeDatesInJSONLogs({ stdout, stderr });
+
+	const line0 = JSON.parse(stdout[0]);
 	delete line0.durationMs;
 	t.deepEqual(line0, {
 		level: 'info',
 		message: 'foo',
 		label: 'test',
 	});
-	t.true(output.stdout[0].includes('"durationMs":'));
+	t.true(stdout[0].includes('"durationMs":'));
 });
 
-ava('Simple use case with modules', async (t) => {
-	const file = await tmp.file();
-	const log = src('test', { formatJSON: true, level: 'trace' }).module('ava');
-	stdMock.use({ print });
-	log.trace('Trace message');
-	log.debug('Debug message');
-	log.info('Info message');
-	log.warn('Warning message');
-	log.error('Error message');
-	log.addFilter(({ message }) => ({
-		message: `(filter) ${message}`,
-		meta: { method: 'GET', path: '/foo' },
-	}));
-	log.info('Info message with filter');
+test.serial('Simple use case with modules', async (t) => {
+	const initialNodeEnv = process.env.NODE_ENV;
+	process.env.NODE_ENV = 'production';
 
-	log
-		.module('module2-not-json', { formatJSON: false, developmentOutputFilePath: file.path })
-		.info(`A message not in " JSON`);
-	stdMock.restore();
-	const output = removeDatesInJSONLogs(stdMock.flush());
-	const outputNotJSON = await getLogsFromFile(file.path);
+	const { stdout, stderr } = await mockAndCatchStd(() => {
+		const log = src('test', { formatJSON: true, level: 'trace' }).module('ava');
+		log.trace('Trace message');
+		log.debug('Debug message');
+		log.info('Info message');
+		log.warn('Warning message');
+		log.error('Error message');
+		log.addFilter(({ message, context }) => ({
+			message: `(filter) ${message}`,
+			context: {
+				meta: { method: 'GET', path: '/foo' },
+				...context,
+			},
+		}));
+		log.info('Info message with filter');
+		log.info('Info message with filter and some context not override', { test: 1 });
+
+		log.module('module2-not-json', { formatJSON: false }).info(`A message not in " JSON`);
+	});
+	removeDatesInJSONLogs({ stdout, stderr });
 
 	// Check that logs are written in the right std
-	t.is(output.stdout.length, 5);
-	t.is(output.stderr.length, 1);
+	t.is(stdout.length, 8);
+	t.is(stderr.length, 1);
 
 	// Check order
-	t.true(output.stdout[0].includes('{"'), 'is JSON shape');
-	t.deepEqual(JSON.parse(output.stdout[0]), {
+	t.true(stdout[0].includes('{"'), 'is JSON shape');
+	t.deepEqual(JSON.parse(stdout[0]), {
 		level: 'trace',
 		message: 'Trace message',
 		label: 'test:ava',
 	});
-	t.deepEqual(JSON.parse(output.stdout[1]), {
+	t.deepEqual(JSON.parse(stdout[1]), {
 		level: 'debug',
 		message: 'Debug message',
 		label: 'test:ava',
 	});
-	t.deepEqual(JSON.parse(output.stdout[2]), {
+	t.deepEqual(JSON.parse(stdout[2]), {
 		level: 'info',
 		message: 'Info message',
 		label: 'test:ava',
 	});
-	t.deepEqual(JSON.parse(output.stdout[3]), {
+	t.deepEqual(JSON.parse(stdout[3]), {
 		level: 'warn',
 		message: 'Warning message',
 		label: 'test:ava',
 	});
-	t.deepEqual(JSON.parse(output.stderr[0]), {
+	t.deepEqual(JSON.parse(stderr[0]), {
 		level: 'error',
 		message: 'Error message',
 		label: 'test:ava',
 	});
-	t.deepEqual(JSON.parse(output.stdout[4]), {
+	t.deepEqual(JSON.parse(stdout[4]), {
 		meta: {
 			method: 'GET',
 			path: '/foo',
@@ -183,64 +193,76 @@ ava('Simple use case with modules', async (t) => {
 		message: '(filter) Info message with filter',
 		label: 'test:ava',
 	});
-	t.is(outputNotJSON.length, 2, `2 logs found`);
+	t.deepEqual(JSON.parse(stdout[5]), {
+		meta: {
+			method: 'GET',
+			path: '/foo',
+		},
+		level: 'info',
+		message: '(filter) Info message with filter and some context not override',
+		label: 'test:ava',
+		test: 1,
+	});
 	t.true(
-		outputNotJSON[0].includes(
-			'It is recommended to use JSON format outside development environment',
-		),
+		stdout[6].includes('It is recommended to use JSON format outside development environment'),
 		`1 log found : the warning`,
 	);
-	t.true(outputNotJSON[1].includes('A message not in " JSON'), `1 log found : the printed message`);
+	t.true(stdout[7].includes('A message not in " JSON'), `1 log found : the printed message`);
+	t.true(
+		stdout[7].includes('test:ava:module2-not-json'),
+		`1 log found : check the label test:ava:module2-not-json`,
+	);
+
+	process.env.NODE_ENV = initialNodeEnv;
 });
 
-ava('With no transport', (t) => {
-	const log = src('test', { console: false });
-	stdMock.use({ print });
-	log.trace('Trace message');
-	log.debug('Debug message');
-	log.info('Info message');
-	log.warn('Warning message');
-	log.error('Error message');
-	stdMock.restore();
-	const output = removeDatesInJSONLogs(stdMock.flush());
+test.serial('With no transport', async (t) => {
+	const { stdout, stderr } = await mockAndCatchStd(() => {
+		const log = src('test', { level: 'silent' });
+		log.trace('Trace message');
+		log.debug('Debug message');
+		log.info('Info message');
+		log.warn('Warning message');
+		log.error('Error message');
+	});
 
 	// Check that logs are not written in std
-	t.is(output.stdout.length, 0);
-	t.is(output.stderr.length, 0);
+	t.is(stdout.length, 0);
+	t.is(stderr.length, 0);
 });
 
-ava('Stream property', (t) => {
-	const log = src('stream', { formatJSON: true });
-	stdMock.use({ print });
-	t.truthy(log.stream);
-	t.is<string, string>(typeof log.stream.write, 'function');
-	log.stream.write('foo');
-	stdMock.restore();
-	const output = removeDatesInJSONLogs(stdMock.flush());
+test.serial('Stream property', async (t) => {
+	const { stdout } = await mockAndCatchStd(() => {
+		const log = src('stream', { formatJSON: true });
+		t.truthy(log.stream);
+		t.is<string, string>(typeof log.stream.write, 'function');
+		log.stream.write('foo');
+	});
 
-	t.deepEqual(JSON.parse(output.stdout[0]), {
+	removeDatesInJSONLogs({ stdout });
+
+	t.deepEqual(JSON.parse(stdout[0]), {
 		level: 'info',
 		message: 'foo',
 		label: 'stream',
 	});
 });
 
-ava('Log an error', (t) => {
-	const log = src('test');
+test.serial('Log an error', async (t) => {
+	const { stderr } = await mockAndCatchStd(() => {
+		const log = src('test');
 
-	stdMock.use({ print });
-	log.error('Error message', new Error('something-went-wrong'));
+		log.error('Error message', new Error('something-went-wrong'));
+	});
+	removeDatesInJSONLogs({ stderr });
 
-	stdMock.restore();
-	const output = removeDatesInJSONLogs(stdMock.flush());
-
-	const logLineParsed = JSON.parse(output.stderr[0]);
+	const logLineParsed = JSON.parse(stderr[0]);
 	logLineParsed.err.stack = logLineParsed.err.stack.substring(0, 27);
 	t.deepEqual(logLineParsed, {
 		err: {
 			message: 'something-went-wrong',
+			name: 'Error',
 			stack: `Error: something-went-wrong`,
-			type: 'Error',
 		},
 		label: 'test',
 		level: 'error',
@@ -248,37 +270,39 @@ ava('Log an error', (t) => {
 	});
 });
 
-ava('Use a predefined filter', (t) => {
+test.serial('Use a predefined filter', async (t) => {
 	process.env.N9LOG = 'trace';
-	const log = src('test', {
-		filters: [
-			(logObject): object => ({
-				message: `a message prefix ${logObject.message}`,
-			}),
-		],
+	const { stdout, stderr } = await mockAndCatchStd(() => {
+		const log = src('test', {
+			filters: [
+				(logObject): object => ({
+					message: `a message prefix ${logObject.message}`,
+				}),
+			],
+		});
+		log.trace('Trace message');
+		log.addFilter(() => ({
+			context: {
+				meta: 'metadata',
+			},
+		}));
+		log.trace('Trace message');
 	});
-	stdMock.use({ print });
-	log.trace('Trace message');
-	log.addFilter(() => ({
-		meta: 'metadata',
-	}));
-	log.trace('Trace message');
-	stdMock.restore();
-	const output = removeDatesInJSONLogs(stdMock.flush());
+	removeDatesInJSONLogs({ stdout, stderr });
 
 	// Check that logs are written in the right std
-	t.is(output.stdout.length, 2);
-	t.is(output.stderr.length, 0);
+	t.is(stdout.length, 2);
+	t.is(stderr.length, 0);
 
 	// Check order
-	t.true(output.stdout[0].includes('{"'), 'is JSON shape');
-	t.deepEqual(JSON.parse(output.stdout[0]), {
+	t.true(stdout[0].includes('{"'), 'is JSON shape');
+	t.deepEqual(JSON.parse(stdout[0]), {
 		level: 'trace',
 		message: 'a message prefix Trace message',
 		label: 'test',
 	});
-	t.is(output.stdout[0].match(/"message"/g).length, 1, 'one key message only');
-	t.deepEqual(JSON.parse(output.stdout[1]), {
+	t.is(stdout[0].match(/"message"/g).length, 1, 'one key message only');
+	t.deepEqual(JSON.parse(stdout[1]), {
 		level: 'trace',
 		message: 'a message prefix Trace message',
 		label: 'test',
