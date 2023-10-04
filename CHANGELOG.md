@@ -1,5 +1,12 @@
 
 
+# [5.0.0-rc.2](https://github.com/neo9/n9-node-log/compare/5.0.0-rc.1...5.0.0-rc.2) (2023-10-04)
+
+
+### errors
+
+* Change errors representation name to type as pino did ([8f23b7f](https://github.com/neo9/n9-node-log/commit/8f23b7fc3b102ffbc59c793b2a4d48efb8fc1af4))
+
 # [5.0.0-rc.1](https://github.com/neo9/n9-node-log/compare/5.0.0-rc.0...5.0.0-rc.1) (2023-10-03)
 
 
