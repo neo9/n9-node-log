@@ -160,10 +160,16 @@ test.serial('Log an N9Error', async (t) => {
 	t.true(stderr[0].includes('[test] N9Error message'));
 	t.true(stderr[1].includes('{'));
 	t.true(stderr[2].includes(' "err": {'));
-	t.true(stderr[3].includes('"type": "N9Error",'));
-	t.true(stderr[4].includes('"message": "something-went-wrong",'));
-	t.true(stderr[5].includes('"stack": "Error: something-went-wrong'));
-	t.true(stderr[7].includes('  at '));
+	t.true(stderr[3].includes(' "date": "'));
+	t.true(stderr[4].includes(' "status": 404'));
+	t.true(stderr[5].includes(' "context": {'));
+	t.true(stderr[6].includes(' "url": "something"'));
+	t.true(stderr[7].includes(' },'));
+	t.true(stderr[8].includes(' "hostname": "'));
+	t.true(stderr[9].includes('"type": "N9Error",'));
+	t.true(stderr[10].includes('"message": "something-went-wrong",'));
+	t.true(stderr[11].includes('"stack": "Error: something-went-wrong'));
+	t.true(stderr[12].includes('  at '));
 	delete process.env.N9LOG;
 });
 

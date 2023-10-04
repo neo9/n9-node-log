@@ -1,3 +1,4 @@
+import { N9Error } from '@neo9/n9-node-utils';
 import test from 'ava';
 
 import src from '../src';
@@ -268,6 +269,44 @@ test.serial('Log an error', async (t) => {
 		level: 'error',
 		message: 'Error message',
 	});
+});
+
+test.serial('Log an N9Error', async (t) => {
+	process.env.N9LOG = 'trace';
+	const { stderr, stdLength } = await mockAndCatchStd(() => {
+		const log = src('test');
+		log.error('N9Error message', new N9Error('something-went-wrong', 404, { url: 'something' }));
+	});
+	t.true(stdLength === 1, 'All JSON output is on  onel line'); // stack trace change sometimes in the ava part
+	removeDatesInJSONLogs({ stderr });
+
+	const logLineParsed = JSON.parse(stderr[0]);
+	logLineParsed.err.stack = logLineParsed.err.stack.substring(0, 27);
+	logLineParsed.err.date = logLineParsed.err.date.replace(/[0-9]/g, '0');
+	logLineParsed.err.hostname = logLineParsed.err.hostname ? '###' : undefined;
+
+	// Check order
+	t.deepEqual(
+		logLineParsed,
+		{
+			err: {
+				message: 'something-went-wrong',
+				stack: 'Error: something-went-wrong',
+				date: '0000-00-00T00:00:00.000Z',
+				hostname: '###',
+				type: 'N9Error',
+				context: {
+					url: 'something',
+				},
+				status: 404,
+			},
+			label: 'test',
+			level: 'error',
+			message: 'N9Error message',
+		},
+		'Check N9Error context is logged',
+	);
+	delete process.env.N9LOG;
 });
 
 test.serial('Use a predefined filter', async (t) => {
