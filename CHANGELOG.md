@@ -1,5 +1,12 @@
 
 
+# [5.0.0-rc.3](https://github.com/neo9/n9-node-log/compare/5.0.0-rc.2...5.0.0-rc.3) (2023-10-04)
+
+
+### errors
+
+* Add support of extra error properties like in N9Error ([fbcd3ec](https://github.com/neo9/n9-node-log/commit/fbcd3ecd5f406f7076d4b391aa4cba509b929747))
+
 # [5.0.0-rc.2](https://github.com/neo9/n9-node-log/compare/5.0.0-rc.1...5.0.0-rc.2) (2023-10-04)
 
 
