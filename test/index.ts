@@ -1,3 +1,4 @@
+import { N9Error } from '@neo9/n9-node-utils';
 import test from 'ava';
 
 import src, { N9Log } from '../src';
@@ -130,13 +131,13 @@ test.serial('Log an error', async (t) => {
 		const log = src('test', { formatJSON: false });
 		log.error('Error message', new Error('something-went-wrong'));
 	});
-	t.true(stdLength > 12, 'Stack trace is preinted'); // stack trace change sometimes in the ava part
+	t.true(stdLength > 12, 'Stack trace is printed'); // stack trace change sometimes in the ava part
 
 	// Check order
 	t.true(stderr[0].includes('[test] Error message'));
 	t.true(stderr[1].includes('{'));
 	t.true(stderr[2].includes(' "err": {'));
-	t.true(stderr[3].includes('"name": "Error",'));
+	t.true(stderr[3].includes('"type": "Error",'));
 	t.true(stderr[4].includes('"message": "something-went-wrong",'));
 	t.true(stderr[5].includes('"stack": "Error: something-went-wrong'));
 	t.true(stderr[7].includes('  at '));
@@ -144,6 +145,25 @@ test.serial('Log an error', async (t) => {
 	t.true(stderr[9].includes('  at '));
 	t.true(stderr[10].includes('  at '));
 	t.true(stderr[11].includes('  at '));
+	delete process.env.N9LOG;
+});
+
+test.serial('Log an N9Error', async (t) => {
+	process.env.N9LOG = 'trace';
+	const { stderr, stdLength } = await mockAndCatchStd(() => {
+		const log = src('test', { formatJSON: false });
+		log.error('N9Error message', new N9Error('something-went-wrong', 404, { url: 'something' }));
+	});
+	t.true(stdLength > 12, 'Stack trace is printed'); // stack trace change sometimes in the ava part
+
+	// Check order
+	t.true(stderr[0].includes('[test] N9Error message'));
+	t.true(stderr[1].includes('{'));
+	t.true(stderr[2].includes(' "err": {'));
+	t.true(stderr[3].includes('"type": "N9Error",'));
+	t.true(stderr[4].includes('"message": "something-went-wrong",'));
+	t.true(stderr[5].includes('"stack": "Error: something-went-wrong'));
+	t.true(stderr[7].includes('  at '));
 	delete process.env.N9LOG;
 });
 

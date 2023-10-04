@@ -523,6 +523,11 @@
     eslint-plugin-rxjs "^5.0.3"
     eslint-plugin-simple-import-sort "^10.0.0"
 
+"@neo9/n9-node-utils@^2.2.1":
+  version "2.2.1"
+  resolved "https://registry.npmjs.org/@neo9/n9-node-utils/-/n9-node-utils-2.2.1.tgz#1f79db395ee2515377dec5c6bb48dd8f9c6b826c"
+  integrity sha512-A3gJgr+dfXkZVgs1CyMzeXJ2IK22YAAZy5nQNrTGSqLW5zRcInaOt1l0zfKrsMoKFbbQWkKsV/copSERXZBgTg==
+
 "@nodelib/fs.scandir@2.1.5":
   version "2.1.5"
   resolved "https://registry.npmjs.org/@nodelib/fs.scandir/-/fs.scandir-2.1.5.tgz#7619c2eb21b25483f6d167548b4cfd5a7488c3d5"

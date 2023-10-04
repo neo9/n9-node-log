@@ -261,7 +261,7 @@ test.serial('Log an error', async (t) => {
 	t.deepEqual(logLineParsed, {
 		err: {
 			message: 'something-went-wrong',
-			name: 'Error',
+			type: 'Error',
 			stack: `Error: something-went-wrong`,
 		},
 		label: 'test',

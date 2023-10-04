@@ -37,11 +37,11 @@ export async function mockAndCatchStd<T>(fn: () => Promise<T> | T): Promise<Catc
 	stdMocks.restore();
 
 	const stdout = flushResult.stdout.flatMap((value) => {
-		if (value.match(/^[^\n]+\n$/g)) return value.replace('\n', '');
+		if (value.endsWith('\n')) return value.slice(0, -1).split('\n');
 		return value.split('\n');
 	});
 	const stderr = flushResult.stderr.flatMap((value) => {
-		if (value.match(/^[^\n]+\n$/g)) return value.replace('\n', '');
+		if (value.endsWith('\n')) return value.slice(0, -1).split('\n');
 		return value.split('\n');
 	});
 

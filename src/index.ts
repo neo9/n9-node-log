@@ -247,7 +247,7 @@ export class N9Log {
 
 		if (obj instanceof Error) {
 			return {
-				name: obj.name,
+				type: obj.constructor.name,
 				message: obj.message,
 				stack: obj.stack,
 			};

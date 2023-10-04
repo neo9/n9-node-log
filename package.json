@@ -45,6 +45,7 @@
     "@ava/typescript": "^4.1.0",
     "@commitlint/cli": "^17.7.1",
     "@neo9/n9-coding-style": "^5.1.2",
+    "@neo9/n9-node-utils": "^2.2.1",
     "@release-it/conventional-changelog": "^7.0.1",
     "@types/debug": "^4.1.8",
     "@types/fs-extra": "^11.0.1",
