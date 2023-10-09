@@ -7,6 +7,9 @@ interface CatchStdLogReturn<T> {
 	error?: unknown;
 	result: T;
 }
+export interface MockAndCatchStdOptions {
+	throwError: boolean;
+}
 
 export const print = true;
 
@@ -24,7 +27,10 @@ export function removeDatesInJSONLogs(logs: { stdout?: string[]; stderr?: string
 	}
 }
 
-export async function mockAndCatchStd<T>(fn: () => Promise<T> | T): Promise<CatchStdLogReturn<T>> {
+export async function mockAndCatchStd<T>(
+	fn: () => Promise<T> | T,
+	options?: MockAndCatchStdOptions,
+): Promise<CatchStdLogReturn<T>> {
 	stdMocks.use({ print });
 	let error: unknown;
 	let result: T;
@@ -32,6 +38,11 @@ export async function mockAndCatchStd<T>(fn: () => Promise<T> | T): Promise<Catc
 		result = await fn();
 	} catch (e) {
 		error = e;
+
+		// eslint-disable-next-line @typescript-eslint/no-unnecessary-boolean-literal-compare
+		if (options?.throwError !== false) {
+			throw error;
+		}
 	}
 	const flushResult = stdMocks.flush();
 	stdMocks.restore();

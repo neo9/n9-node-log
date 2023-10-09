@@ -36,6 +36,7 @@ export class N9Log {
 	// eslint-disable-next-line no-use-before-define
 	private isLevelEnabledCache: Partial<Record<N9Log.Level, boolean>>;
 	private profilers: Record<string, number> = {};
+	public readonly maxDeep: number = 50;
 
 	constructor(name: string, options?: N9Log.Options, parentLogger?: N9Log) {
 		this.options = options || parentLogger?.options || {};
@@ -234,13 +235,18 @@ export class N9Log {
 	}
 
 	// inspired from https://github.com/dial-once/node-logtify/blob/23e2b41e5218bb0aaead92120cd655a455717e92/src/modules/message.js#L5
-	private jsonify(obj: any): any {
+	private jsonify(obj: any, deep: number = 0): any {
 		if (!obj || ['string', 'number'].includes(typeof obj)) return obj;
+
+		if (deep > this.maxDeep) {
+			this.warn(`Object max deep (${this.maxDeep}) reached !`);
+			return;
+		}
 
 		if (Array.isArray(obj)) {
 			const array = [];
 			for (const item of obj) {
-				array.push(this.jsonify(item));
+				array.push(this.jsonify(item, deep + 1));
 			}
 			return array;
 		}
@@ -260,7 +266,7 @@ export class N9Log {
 
 		const object = {};
 		for (const [key, value] of Object.entries(obj)) {
-			object[key] = this.jsonify(value);
+			object[key] = this.jsonify(value, deep + 1);
 		}
 		return object;
 	}

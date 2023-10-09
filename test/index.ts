@@ -6,6 +6,7 @@ import { mockAndCatchStd } from './fixtures/helper';
 
 test.beforeEach(() => {
 	process.env.NODE_ENV = 'development';
+	delete process.env.N9LOG;
 });
 
 test.serial('Simple use case', async (t) => {
@@ -33,7 +34,6 @@ test.serial('Simple use case', async (t) => {
 	t.true(result.isLevelEnabled('info'));
 	t.true(result.isLevelEnabled('warn'));
 	t.true(result.isLevelEnabled('error'));
-	delete process.env.N9LOG;
 });
 
 test.serial('Check getters', (t) => {
@@ -145,7 +145,6 @@ test.serial('Log an error', async (t) => {
 	t.true(stderr[9].includes('  at '));
 	t.true(stderr[10].includes('  at '));
 	t.true(stderr[11].includes('  at '));
-	delete process.env.N9LOG;
 });
 
 test.serial('Log an N9Error', async (t) => {
@@ -170,7 +169,6 @@ test.serial('Log an N9Error', async (t) => {
 	t.true(stderr[10].includes('"message": "something-went-wrong",'));
 	t.true(stderr[11].includes('"stack": "Error: something-went-wrong'));
 	t.true(stderr[12].includes('  at '));
-	delete process.env.N9LOG;
 });
 
 test.serial('Log a warning outside dev', async (t) => {
@@ -185,7 +183,6 @@ test.serial('Log a warning outside dev', async (t) => {
 			'[test] It is recommended to use JSON format outside development environment',
 		),
 	);
-	delete process.env.N9LOG;
 });
 
 test.serial('Create many modules, should avoid error "Out of memory: wasm memory"', async (t) => {
@@ -241,6 +238,20 @@ test.serial('Print with wrong level', async (t) => {
 		process.stdout === result.getStreamOutputFromLevel('silent'),
 		'Check getStreamOutputFromLevel with silent',
 	);
+});
 
-	delete process.env.N9LOG;
+test.serial('Log circular object', async (t) => {
+	const { stderr, stdLength, result } = await mockAndCatchStd(() => {
+		const log = src('test', { formatJSON: false });
+		const circularObject: any = { a: 1 };
+		circularObject.a = circularObject;
+		log.error('Error message', circularObject);
+		return log;
+	});
+
+	t.is(stdLength, result.maxDeep + result.maxDeep + 3);
+	t.true(stderr[0].includes('Error message'));
+	for (let i = 2; i < result.maxDeep; i += 1) {
+		t.true(stderr[i].includes('"a": {'), `Check line at index ${i} | ${stderr[i]}`);
+	}
 });
