@@ -1,5 +1,12 @@
 
 
+# [5.0.0-rc.4](https://github.com/neo9/n9-node-log/compare/5.0.0-rc.3...5.0.0-rc.4) (2023-10-09)
+
+
+### context
+
+* Fix support of circular objects ([3fb1419](https://github.com/neo9/n9-node-log/commit/3fb14194c2b064a51b8da445222244e914f16462))
+
 # [5.0.0-rc.3](https://github.com/neo9/n9-node-log/compare/5.0.0-rc.2...5.0.0-rc.3) (2023-10-04)
 
 
