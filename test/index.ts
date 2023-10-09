@@ -255,3 +255,32 @@ test.serial('Log circular object', async (t) => {
 		t.true(stderr[i].includes('"a": {'), `Check line at index ${i} | ${stderr[i]}`);
 	}
 });
+
+test.serial('Check support of special types like functions, bigint, symbols', async (t) => {
+	const { stderr, stdLength } = await mockAndCatchStd(() => {
+		const log = src('test', { formatJSON: false });
+		const objectWithFunctions: any = {
+			aFunction: () => {
+				return;
+			},
+			bFunction() {
+				return;
+			},
+			bigInt: BigInt(987654123456789),
+			aSymbol: Symbol('symbol'),
+		};
+		log.error('Error message', objectWithFunctions);
+		return log;
+	});
+
+	t.is(stdLength, 7);
+	t.true(stderr[0].includes('Error message'));
+	let index = 2;
+	t.true(stderr[index].includes('[Function aFunction]'));
+	index += 1;
+	t.true(stderr[index].includes('[Function bFunction]'));
+	index += 1;
+	t.true(stderr[index].includes('987654123456789'));
+	index += 1;
+	t.true(stderr[index].includes('Symbol(symbol)'));
+});

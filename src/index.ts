@@ -24,6 +24,8 @@ export namespace N9Log {
 	}
 }
 
+const primitiveTypes = ['string', 'number', 'boolean'];
+
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export class N9Log {
 	public stream: { write: (message: string) => void };
@@ -236,7 +238,7 @@ export class N9Log {
 
 	// inspired from https://github.com/dial-once/node-logtify/blob/23e2b41e5218bb0aaead92120cd655a455717e92/src/modules/message.js#L5
 	private jsonify(obj: any, deep: number = 0): any {
-		if (!obj || ['string', 'number'].includes(typeof obj)) return obj;
+		if (!obj || primitiveTypes.includes(typeof obj)) return obj;
 
 		if (deep > this.maxDeep) {
 			this.warn(`Object max deep (${this.maxDeep}) reached !`);
@@ -262,6 +264,16 @@ export class N9Log {
 
 		if (obj instanceof Date) {
 			return obj;
+		}
+
+		switch (typeof obj) {
+			case 'function':
+				return `[Function ${obj.name}]`;
+			case 'symbol':
+			case 'bigint':
+				return obj.toString();
+			default:
+				break;
 		}
 
 		const object = {};
