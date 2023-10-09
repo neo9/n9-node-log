@@ -1,5 +1,12 @@
 
 
+# [5.0.0-rc.5](https://github.com/neo9/n9-node-log/compare/5.0.0-rc.4...5.0.0-rc.5) (2023-10-09)
+
+
+### context
+
+* Fix support of functions bigint and symbols to avoid circles ([97a8807](https://github.com/neo9/n9-node-log/commit/97a8807561b52eb3703bfef03165047dbdb2ede6))
+
 # [5.0.0-rc.4](https://github.com/neo9/n9-node-log/compare/5.0.0-rc.3...5.0.0-rc.4) (2023-10-09)
 
 
