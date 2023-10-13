@@ -1,5 +1,13 @@
 
 
+# [5.0.0-rc.6](https://github.com/neo9/n9-node-log/compare/5.0.0-rc.5...5.0.0-rc.6) (2023-10-13)
+
+
+### yarn
+
+* Upgrade dependencies ([673e1d2](https://github.com/neo9/n9-node-log/commit/673e1d2660a2d11d5aefc2c0f37f55f731e7424b))
+* Upgrade dependencies and remove codecov one #29 ([889eaeb](https://github.com/neo9/n9-node-log/commit/889eaeb4a28123674a77bc1d027d63af44a7eaee)), closes [#29](https://github.com/neo9/n9-node-log/issues/29)
+
 # [5.0.0-rc.5](https://github.com/neo9/n9-node-log/compare/5.0.0-rc.4...5.0.0-rc.5) (2023-10-09)
 
 
