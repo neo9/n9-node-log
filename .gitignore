@@ -1,21 +1,41 @@
-# Dependencies
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Dependency directories
 node_modules
 
-# Build
+# Build directory
 dist
 
-# Logs
-npm-debug.log
+# Editor's config directories
+.vscode
+.idea
+*.iml
+
+# MacOS related files
+*.DS_Store
+.AppleDouble
+.LSOverride
+._*
 
 # Coverage
 coverage
 .nyc_output
 
-# Editors
-.vscode
-.idea
-*.iml
+# Windows related files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Optional npm cache directory
+.npm
+# Optional nvm version file
+.nvmrc
 
 # Sonar
 .scannerwork
 sonar-project.properties
+coverage.lcov

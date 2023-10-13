@@ -4,37 +4,46 @@
   "description": "Logging node module based on Pino",
   "keywords": [
     "node log",
-    "pino",
     "log",
     "logging",
-    "debug"
+    "debug",
+    "trace",
+    "warn",
+    "error",
+    "circular"
   ],
-  "author": "Benjamin DANIEL <benjamin.daniel@neo9.fr>",
-  "license": "MIT",
-  "main": "dist/src/index.js",
-  "types": "dist/src/index.d.ts",
+  "license": "GPL-3.0-or-later",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "files": [
-    "dist/src"
+    "dist"
   ],
   "scripts": {
-    "build": "rimraf dist/ && tsc",
-    "lint": "eslint --config .eslintrc.yaml '{src,test}/**/*.ts'",
-    "lint:apply": "npm run format && npx eslint --fix '{src,test}/**/*.ts'",
+    "dev": "rimraf dist/ && tsc --watch",
+    "build": "rimraf dist/ && tsc && rm -rf dist/test && mv dist/src/* dist/ && rm -rf dist/src",
     "format": "prettier --write '{,@(src|test)/**/}*.*'",
-    "test:dev": "export NODE_ENV=test && TS_NODE_FILES=true ava --verbose --color --serial --watch",
-    "test": "export NODE_ENV=test && nyc ava --verbose --color --serial --timeout=2m --no-worker-threads && nyc report --reporter=html",
-    "coverage": "nyc report --reporter=text-lcov > coverage.lcov && codecov",
-    "preversion": "npm test",
-    "prepublishOnly": "npm run build",
+    "lint": "eslint --config .eslintrc.yaml '{src,test}/**/*.ts'",
+    "lint:apply": "npm run format && eslint --fix --config .eslintrc.yaml '{src,test}/**/*.ts'",
+    "lint:verbose": "eslint --fix --config .eslintrc.yaml '{src,test}/**/*.ts' --format unix '{src,test}/**/*.ts'",
+    "test:debug": "export NODE_ENV=test && TS_NODE_FILES=true ava debug --no-worker-threads --verbose --color --serial --host 0.0.0.0 --port 9230 --break",
+    "test:dev": "export NODE_ENV=test && TS_NODE_FILES=true ava --no-worker-threads --verbose --color --serial --watch",
+    "test": "export NODE_ENV=test && TS_NODE_FILES=true nyc ava --no-worker-threads --verbose --color --serial && nyc report --reporter=html",
+    "test:one": "export NODE_ENV=test && TS_NODE_FILES=true ava --no-worker-threads --verbose --color --serial",
     "release": "release-it",
+    "release:pre-release": "release-it --preRelease",
     "release:dry": "release-it --dry-run"
+  },
+  "author": {
+    "name": "Benjamin DANIEL",
+    "email": "benjamin.daniel@neo9.fr"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/neo9/n9-node-log"
   },
+  "homepage": "https://github.com/neo9/n9-node-log#readme",
   "engines": {
-    "node": ">=16.0.0"
+    "node": ">= 16.20"
   },
   "dependencies": {
     "chalk": "^4.1.2",
@@ -45,17 +54,15 @@
     "@ava/typescript": "^4.1.0",
     "@commitlint/cli": "^17.7.1",
     "@neo9/n9-coding-style": "^5.1.2",
-    "@neo9/n9-node-utils": "^2.2.1",
+    "@neo9/n9-node-utils": "^3.0.0-rc.0",
     "@release-it/conventional-changelog": "^7.0.1",
+    "@tsconfig/node16": "^16.1.1",
     "@types/debug": "^4.1.8",
     "@types/fs-extra": "^11.0.1",
     "@types/node": "^20.8.4",
     "@types/std-mocks": "^1.0.1",
     "ava": "^5.3.1",
-    "codecov": "^3.8.3",
-    "conventional-changelog-cli": "^4.1.0",
     "husky": "^4.3.8",
-    "nock": "^13.3.3",
     "nyc": "^15.1.0",
     "prettier": "^3.0.3",
     "release-it": "^16.1.5",
@@ -66,7 +73,7 @@
   },
   "ava": {
     "files": [
-      "test/*"
+      "test/**/*.test.ts"
     ],
     "timeout": "1m",
     "extensions": [
@@ -75,54 +82,6 @@
     "require": [
       "ts-node/register"
     ]
-  },
-  "commitlint": {
-    "parserPreset": {
-      "parserOpts": {
-        "headerPattern": "^([a-zA-Z0-9]*): ([a-zA-Z0-9-_' .]*)$",
-        "headerCorrespondence": [
-          "scope",
-          "subject"
-        ]
-      }
-    },
-    "rules": {
-      "scope-empty": [
-        2,
-        "never"
-      ],
-      "scope-case": [
-        2,
-        "always",
-        "lower-case"
-      ],
-      "scope-max-length": [
-        2,
-        "always",
-        12
-      ],
-      "subject-empty": [
-        2,
-        "never"
-      ],
-      "subject-case": [
-        2,
-        "always",
-        [
-          "sentence-case"
-        ]
-      ],
-      "subject-full-stop": [
-        2,
-        "never",
-        "."
-      ],
-      "subject-max-length": [
-        2,
-        "always",
-        70
-      ]
-    }
   },
   "husky": {
     "hooks": {

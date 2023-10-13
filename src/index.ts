@@ -276,7 +276,7 @@ export class N9Log {
 				break;
 		}
 
-		const object = {};
+		const object: Record<string, any> = {};
 		for (const [key, value] of Object.entries(obj)) {
 			object[key] = this.jsonify(value, deep + 1);
 		}
