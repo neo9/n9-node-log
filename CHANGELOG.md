@@ -1,5 +1,12 @@
 
 
+# [5.0.0-rc.7](https://github.com/neo9/n9-node-log/compare/5.0.0-rc.6...5.0.0-rc.7) (2023-10-19)
+
+
+### colors
+
+* Force color to be present and add utils to deal with it ([cc6ace3](https://github.com/neo9/n9-node-log/commit/cc6ace3a24f5184299fbc5be7e25f96153124bc9))
+
 # [5.0.0-rc.6](https://github.com/neo9/n9-node-log/compare/5.0.0-rc.5...5.0.0-rc.6) (2023-10-13)
 
 
