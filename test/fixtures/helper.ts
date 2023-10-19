@@ -1,5 +1,7 @@
 import * as stdMocks from 'std-mocks';
 
+import { removeColors } from '../../src';
+
 interface CatchStdLogReturn<T> {
 	stdout: string[];
 	stderr: string[];
@@ -47,14 +49,18 @@ export async function mockAndCatchStd<T>(
 	const flushResult = stdMocks.flush();
 	stdMocks.restore();
 
-	const stdout = flushResult.stdout.flatMap((value) => {
-		if (value.endsWith('\n')) return value.slice(0, -1).split('\n');
-		return value.split('\n');
-	});
-	const stderr = flushResult.stderr.flatMap((value) => {
-		if (value.endsWith('\n')) return value.slice(0, -1).split('\n');
-		return value.split('\n');
-	});
+	const stdout = flushResult.stdout
+		.flatMap((value) => {
+			if (value.endsWith('\n')) return value.slice(0, -1).split('\n');
+			return value.split('\n');
+		})
+		.map((line) => removeColors(line));
+	const stderr = flushResult.stderr
+		.flatMap((value) => {
+			if (value.endsWith('\n')) return value.slice(0, -1).split('\n');
+			return value.split('\n');
+		})
+		.map((line) => removeColors(line));
 
 	const stdLength = stdout.length + stderr.length;
 	return { stdout, stderr, stdLength, error, result };

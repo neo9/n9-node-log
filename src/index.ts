@@ -1,6 +1,7 @@
 import * as chalk from 'chalk';
 import { fastISOString } from 'fast-iso-string';
 import fastSafeStringify from 'fast-safe-stringify';
+import stripAnsi = require('strip-ansi');
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace N9Log {
@@ -25,9 +26,22 @@ export namespace N9Log {
 }
 
 const primitiveTypes = ['string', 'number', 'boolean'];
+// export common utils waiting for OSS-12
+export const safeStringify = fastSafeStringify;
+export const removeColors = stripAnsi;
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export class N9Log {
+	private static readonly customChalk: chalk.Chalk = new chalk.Instance({ level: 1 });
+	// eslint-disable-next-line no-use-before-define
+	private static readonly colorByLevel: Record<N9Log.Level, chalk.Chalk> = {
+		silent: N9Log.customChalk.black,
+		trace: N9Log.customChalk.dim,
+		debug: N9Log.customChalk.green,
+		info: N9Log.customChalk.blue,
+		warn: N9Log.customChalk.yellow,
+		error: N9Log.customChalk.red,
+	};
 	public stream: { write: (message: string) => void };
 
 	public readonly name: string;
@@ -207,33 +221,17 @@ export class N9Log {
 			: '';
 
 		return [
-			fastISOString(),
+			N9Log.customChalk.grey(fastISOString()),
 			' - ',
-			this.getLevelColored(level),
+			N9Log.colorByLevel[level](level),
 			' : [',
-			this.name,
+			N9Log.customChalk.bold(this.name),
 			'] ',
 			outputMessage,
 			contextAsString,
 			'\n',
 		].join('');
 		// 2023-10-02T10:56:26.444Z - info : [catalogue-scheduler-api:amqp] Connected to amqp server amqp://rabbitmq {"url":"amqp://rabbitmq"}
-	}
-
-	private getLevelColored(level: Omit<N9Log.Level, 'silent'>): string {
-		switch (level) {
-			case 'error':
-				return chalk.red(level);
-			case 'warn':
-				return chalk.yellow(level);
-			case 'info':
-				return chalk.blue(level);
-			case 'debug':
-				return chalk.green(level);
-			case 'trace':
-			default:
-				return chalk.bold(level);
-		}
 	}
 
 	// inspired from https://github.com/dial-once/node-logtify/blob/23e2b41e5218bb0aaead92120cd655a455717e92/src/modules/message.js#L5

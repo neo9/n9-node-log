@@ -48,7 +48,8 @@
   "dependencies": {
     "chalk": "^4.1.2",
     "fast-iso-string": "^1.0.0",
-    "fast-safe-stringify": "^2.1.1"
+    "fast-safe-stringify": "^2.1.1",
+    "strip-ansi": "^6.0.1"
   },
   "devDependencies": {
     "@ava/typescript": "^4.1.0",

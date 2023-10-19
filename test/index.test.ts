@@ -1,7 +1,7 @@
 import { N9Error } from '@neo9/n9-node-utils';
 import test from 'ava';
 
-import src, { N9Log } from '../src';
+import src, { N9Log, safeStringify } from '../src';
 import { mockAndCatchStd } from './fixtures/helper';
 
 test.beforeEach(() => {
@@ -23,12 +23,11 @@ test.serial('Simple use case', async (t) => {
 
 	t.is(stdLength, 5);
 	// Check order
-	t.true(stdout[0].includes('[test] Trace message'));
-	t.true(stdout[0].endsWith('[test] Trace message')); // not trailing space
-	t.true(stdout[1].includes('[test] Debug message'));
-	t.true(stdout[2].includes('[test] Info message'));
-	t.true(stdout[3].includes('[test] Warning message'));
-	t.true(stderr[0].includes('[test] Error message'));
+	t.regex(stdout[0], / - trace : \[test] Trace message/g);
+	t.regex(stdout[1], / - debug : \[test] Debug message/g);
+	t.regex(stdout[2], / - info : \[test] Info message/g);
+	t.regex(stdout[3], / - warn : \[test] Warning message/g);
+	t.regex(stderr[0], / - error : \[test] Error message/g);
 	t.true(result.isLevelEnabled('trace'));
 	t.true(result.isLevelEnabled('debug'));
 	t.true(result.isLevelEnabled('info'));
@@ -214,17 +213,6 @@ test.serial('Print with wrong level', async (t) => {
 
 	t.is(stdLength, 0); // level unknown so it is not enabled
 
-	t.is(
-		result
-			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-			// @ts-ignore
-			.getLevelColored('wrong-level')
-			// eslint-disable-next-line no-control-regex
-			.replace(/[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g, ''),
-		'wrong-level',
-		'Check unknown level case',
-	);
-
 	t.true(
 		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 		// @ts-ignore
@@ -254,6 +242,19 @@ test.serial('Log circular object', async (t) => {
 	for (let i = 2; i < result.maxDeep; i += 1) {
 		t.true(stderr[i].includes('"a": {'), `Check line at index ${i} | ${stderr[i]}`);
 	}
+});
+
+test.serial('Check usage of fastSafeStringify', async (t) => {
+	const { stderr, stdLength } = await mockAndCatchStd(() => {
+		const log = src('test', { formatJSON: false });
+		const circularObject: any = { a: 1 };
+		circularObject.a = circularObject;
+		log.error('Error message', { argString: safeStringify(circularObject) });
+	});
+
+	t.is(stdLength, 4);
+	t.true(stderr[0].includes('Error message'));
+	t.true(stderr[2].includes(`"argString": "{\\"a\\":\\"[Circular]\\"}"`), `Check log context line`);
 });
 
 test.serial('Check support of special types like functions, bigint, symbols', async (t) => {
