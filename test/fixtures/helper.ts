@@ -1,4 +1,4 @@
-import * as stdMocks from 'std-mocks';
+import * as StdMocks from 'std-mocks';
 
 import { removeColors } from '../../src';
 
@@ -33,7 +33,7 @@ export async function mockAndCatchStd<T>(
 	fn: () => Promise<T> | T,
 	options?: MockAndCatchStdOptions,
 ): Promise<CatchStdLogReturn<T>> {
-	stdMocks.use({ print });
+	StdMocks.use({ print });
 	let error: unknown;
 	let result: T;
 	try {
@@ -46,8 +46,8 @@ export async function mockAndCatchStd<T>(
 			throw error;
 		}
 	}
-	const flushResult = stdMocks.flush();
-	stdMocks.restore();
+	const flushResult = StdMocks.flush();
+	StdMocks.restore();
 
 	const stdout = flushResult.stdout
 		.flatMap((value) => {

@@ -1,6 +1,6 @@
 import * as chalk from 'chalk';
 import { fastISOString } from 'fast-iso-string';
-import fastSafeStringify from 'fast-safe-stringify';
+import FastSafeStringify from 'fast-safe-stringify';
 import stripAnsi = require('strip-ansi');
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -27,7 +27,7 @@ export namespace N9Log {
 
 const primitiveTypes = ['string', 'number', 'boolean'];
 // export common utils waiting for OSS-12
-export const safeStringify = fastSafeStringify;
+export const safeStringify = FastSafeStringify;
 export const removeColors = stripAnsi;
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
@@ -207,7 +207,7 @@ export class N9Log {
 			}
 		}
 		if (this.formatJSON) {
-			return `${fastSafeStringify({
+			return `${FastSafeStringify({
 				...this.jsonify(outputContext),
 				level,
 				timestamp: fastISOString(),
@@ -217,7 +217,7 @@ export class N9Log {
 			// {"level":"warn","timestamp":"2023-10-02T12:36:15.480Z","label":"mongo","label":"mongo:mongo","argString":"{\"topologyId\":3}"}
 		}
 		const contextAsString = outputContext
-			? `\n${fastSafeStringify(this.jsonify(outputContext), null, 2).replace(/\\n/g, '\n')}`
+			? `\n${FastSafeStringify(this.jsonify(outputContext), null, 2).replace(/\\n/g, '\n')}`
 			: '';
 
 		return [
