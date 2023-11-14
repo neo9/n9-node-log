@@ -1,5 +1,20 @@
 
 
+# [5.0.0](https://github.com/neo9/n9-node-log/compare/5.0.0-rc.7...5.0.0) (2023-11-14)
+
+
+### doc
+
+* Update package description ([ccf3901](https://github.com/neo9/n9-node-log/commit/ccf3901b6c63a5c8982487530b70d2b3cc60d090))
+
+### node
+
+* Stop node 16 tests ([58a9439](https://github.com/neo9/n9-node-log/commit/58a9439dacc5a4be9e247030184983da5d3e8ee6))
+
+### yarn
+
+* Upgrade dependencies ([b43c702](https://github.com/neo9/n9-node-log/commit/b43c702d228e3e5beab91127c5cd2ac54a5c273e))
+
 # [5.0.0-rc.7](https://github.com/neo9/n9-node-log/compare/5.0.0-rc.6...5.0.0-rc.7) (2023-10-19)
 
 
